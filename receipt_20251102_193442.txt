@@ -1,0 +1,12 @@
+=== Shopping Mall Receipt ===
+Customer: kamil
+Date: Sun Nov 02 19:34:42 2025
+No   Product                       Qty       Price
+      ------------------------------------------------------------
+1    Rice                          1         
+------------------------------------------------------------
+Total: 45
+Payable: 45
+Paid via: Cash
+
+Thank you!

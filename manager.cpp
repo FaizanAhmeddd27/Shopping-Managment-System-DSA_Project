@@ -16,13 +16,24 @@ int countProduct() {
     return cnt;
 }
 
+/**
+ * @brief Deletes all Product nodes in the global linked list and clears the list head.
+ *
+ * Frees the memory of every Product in the list starting from the global `head`
+ * and sets `head` to nullptr.
+ */
 void deleteList() {
     Product *t = head;
     while (t) { Product *d = t; t = t->next; delete d; }
     head = nullptr;
 }
 
-/* ---------- BINARY SEARCH (Req: sorted by ID) ---------- */
+/**
+ * @brief Locate a product by its ID within the current product list.
+ *
+ * @param targetId The product ID to search for.
+ * @return Product* Pointer to the Product with matching ID, or `nullptr` if no match is found.
+ */
 Product* binarySearchById(int targetId) {
     vector<Product*> arr;
     for (Product* t = head; t; t = t->next) arr.push_back(t);
@@ -41,6 +52,14 @@ Product* binarySearchById(int targetId) {
     return nullptr;
 }
 
+/**
+ * @brief Renders a UI to create a new product and add it to the inventory.
+ *
+ * Prompts the user for product name, ID, price, and quantity, initializes the new
+ * Product's soldCount to 0, appends the node to the end of the global linked list
+ * `head`, and persists the new product to disk. Provides visual progress and success
+ * feedback in the UI.
+ */
 void addProduct() {
     drawHeader("Add New Product");
     
@@ -86,6 +105,14 @@ void addProduct() {
     gotoxy(30, 23); getch();
 }
 
+/**
+ * @brief Render a formatted table of all products from the global list to the console UI.
+ *
+ * Displays a header row and one line per product showing ID, name, price, quantity, and sold count.
+ * If the product list is empty, shows an error toast and waits for user input. After listing items,
+ * prints the total number of products. The function updates console cursor position and text color
+ * while rendering.
+ */
 void displayProduct() {
     drawHeader("All Products");
     
@@ -136,6 +163,14 @@ void displayProduct() {
     setColor(Color::BRIGHT_WHITE);
 }
 
+/**
+ * @brief Prompts for a product ID, allows editing of that product's fields, and persists the changes.
+ *
+ * If the product list is empty, reports an error and returns. Prompts the user for a product ID,
+ * locates the matching product, displays its current values, reads new ID, name, price, and quantity
+ * from input, updates the product in-place, and saves the entire product list to persistent storage.
+ * If no matching product is found, reports an error and returns without modifying data.
+ */
 void modifyProduct() {
     drawHeader("Modify Product");
     
@@ -201,6 +236,13 @@ void modifyProduct() {
     }
 }
 
+/**
+ * @brief Prompts for a product ID and removes the matching product from the global product list.
+ *
+ * If a product with the entered ID exists, the function unlinks and deletes that product node,
+ * persists the updated list to storage, and displays a success message; if no match is found,
+ * it displays an error message.
+ */
 void deleteProduct() {
     drawHeader("Delete Product");
     
@@ -241,6 +283,15 @@ void deleteProduct() {
     gotoxy(30, 23); getch();
 }
 
+/**
+ * @brief Appends a single product record to the products CSV file.
+ *
+ * Writes the given Product's fields as a CSV line to "p.csv" in the order:
+ * id,name,price,quantity,sold. If the file cannot be opened the function
+ * returns without writing.
+ *
+ * @param temp Pointer to the Product to be written.
+ */
 void saveNewProductToFile(Product *temp) {
     ofstream file("p.csv", ios::app);
     if (!file.is_open()) return;
@@ -260,6 +311,13 @@ void saveAllProductToFile() {
     file.close();
 }
 
+/**
+ * @brief Loads products from the "p.csv" file into the global linked list.
+ *
+ * Clears the current list and appends a Product node for each well-formed CSV record (file header is expected).
+ * If "p.csv" does not exist, the file is created with the header "ID,Name,Price,Quantity,Sold" and the list remains empty.
+ * Malformed or unparsable lines are skipped. An empty Sold field is treated as 0.
+ */
 void loadProductFromFile() {
     deleteList();
     ifstream file("p.csv");
@@ -287,7 +345,16 @@ void loadProductFromFile() {
     file.close();
 }
 
-/* ---------- MERGE SORT ALGORITHM ---------- */
+/**
+ * @brief Locate the middle node of a singly linked list segment.
+ *
+ * Finds and returns the middle node of the list that begins at `h`.
+ *
+ * @param h Head of the list segment to examine.
+ * @return Product* Pointer to the middle node, or `nullptr` if `h` is `nullptr`.
+ *         If the segment has an even number of nodes, the first of the two middle
+ *         nodes (the lower-indexed one) is returned.
+ */
 Product* midNode(Product* h) {
     if (!h) return nullptr;
     Product* slow = h; Product* fast = h->next;
@@ -312,6 +379,13 @@ Product* mergeSorted(Product* a, Product* b, bool sortByPrice) {
     return result;
 }
 
+/**
+ * @brief Sorts a singly linked list of Product nodes and returns the head of the sorted list.
+ *
+ * @param node Head of the list (or sublist) to be sorted.
+ * @param sortByPrice When `true`, sort by `proPrice` in ascending order; when `false`, sort by `proName` in ascending, case-insensitive lexical order.
+ * @return Product* Head of the newly sorted list.
+ */
 Product* mergeSortProducts(Product* node, bool sortByPrice) {
     if (!node || !node->next) return node;
     Product* mid = midNode(node);
@@ -322,19 +396,39 @@ Product* mergeSortProducts(Product* node, bool sortByPrice) {
     return mergeSorted(left, right, sortByPrice);
 }
 
+/**
+ * @brief Sorts the global product list by name (ascending, case-insensitive) and persists the result.
+ *
+ * Updates the global head pointer to the newly ordered list and writes the full product list to the products file.
+ */
 void sortProductsByName() {
     showSpinner(800, 60, 15);
     head = mergeSortProducts(head, false);
     saveAllProductToFile();
 }
 
+/**
+ * @brief Sorts the global product list by price in ascending order and persists the new order to disk.
+ *
+ * Performs an in-place sort of the program's global linked list of Product nodes using price as the key
+ * (lowest to highest). After sorting, the function overwrites the product data file to reflect the new order.
+ */
 void sortProductsByPrice() {
     showSpinner(800, 60, 15);
     head = mergeSortProducts(head, true);
     saveAllProductToFile();
 }
 
-/* ---------- HEAP SORT for Top Sellers (Priority Queue) ---------- */
+/**
+ * @brief Display a ranked list of top-selling products using a max-heap.
+ *
+ * Builds a max-heap keyed by each product's `soldCount`, then renders up to `topN`
+ * entries in descending order of sold units showing rank, product name, units sold,
+ * and computed revenue (soldCount * proPrice). If fewer products exist than
+ * `topN`, the function displays all available products.
+ *
+ * @param topN Maximum number of top-selling products to display.
+ */
 void displayTopSellers(int topN) {
     drawHeader("Top Sellers - Using Heap Sort");
     
@@ -386,7 +480,14 @@ void displayTopSellers(int topN) {
     gotoxy(12, y + 1); getch();
 }
 
-/* ---------- NEW: REVERSE LIST (Stack-based DSA) ---------- */
+/**
+ * @brief Reverse the global product linked list and persist the reordered list.
+ *
+ * Reverses the sequence of Product nodes reachable from the global `head`. If the
+ * list is empty, no changes are made and the function returns after signaling an error.
+ * On successful reversal, the updated list order is written to persistent storage
+ * and a confirmation is presented to the user.
+ */
 void reverseProductList() {
     drawHeader("Reverse Product List - Using Stack");
     
@@ -423,7 +524,18 @@ void reverseProductList() {
     gotoxy(30, 23); getch();
 }
 
-/* ---------- NEW: PRODUCT STATISTICS (Graph Theory) ---------- */
+/**
+ * @brief Display advanced inventory analytics computed from the global product list.
+ *
+ * Traverses the global linked list of products and computes aggregate metrics, then renders
+ * an on-screen summary including total products, total stock items, total items sold,
+ * inventory value, average price, highest price, lowest price, and stock turnover rate
+ * (computed as totalSold / (totalSold + totalStock) expressed as a percentage).
+ *
+ * If no products exist, shows an error message and returns without displaying statistics.
+ *
+ * The function performs UI rendering and waits for a key press before returning.
+ */
 void showProductStatistics() {
     drawHeader("Product Statistics - Advanced Analytics");
     
@@ -472,7 +584,17 @@ void showProductStatistics() {
     gotoxy(30, 26); getch();
 }
 
-/* ---------- NEW: LOW STOCK ALERT (Min-Heap Priority Queue) ---------- */
+/**
+ * @brief Display a low-stock alert report using a min-heap ordered by stock.
+ *
+ * Builds a min-heap of products keyed by their stock level and renders a UI
+ * listing up to 10 products with the lowest stock that have proNum <= 10.
+ * Each entry shows the product name, current stock, and a status string:
+ * "OUT OF STOCK" when stock is 0, otherwise "RESTOCK SOON". If the product
+ * list is empty, an error message is shown and the function returns.
+ *
+ * The function blocks for user input before returning.
+ */
 void showLowStockAlerts() {
     drawHeader("Low Stock Alerts - Priority Queue");
     

@@ -54,7 +54,11 @@ void reverseProductList();
 void showProductStatistics();
 void showLowStockAlerts();
 
-/* ---------- ASCII ART TITLE ---------- */
+/**
+ * @brief Renders the application's ASCII-art title, applies color styling, and pauses briefly.
+ *
+ * Clears the console, draws a multi-line ASCII title and subtitle using positioned output with multiple colors, then waits 5 seconds before returning.
+ */
 void printTitle() {
     system("cls");
     setColor(Color::BRIGHT_CYAN);
@@ -79,7 +83,11 @@ void printTitle() {
     Sleep(5000);
 }
 
-/* ---------- Credits ---------- */
+/**
+ * @brief Displays the application's development team credits in a styled, centered screen and waits for user acknowledgement.
+ *
+ * Shows the "DEVELOPMENT TEAM" header, a decorative box, the list of creators with their identifiers, and a prompt. The function blocks until the user presses any key.
+ */
 void showCredits() {
     drawHeader("DEVELOPMENT TEAM");
     
@@ -99,7 +107,14 @@ void showCredits() {
     getch(); 
 }
 
-/* ---- Exit ---- */
+/**
+ * @brief Displays an exit confirmation prompt and handles the user's choice.
+ *
+ * Presents a confirmation dialog that waits for a single-key response. If the user
+ * confirms ('Y' or 'y'), a farewell message is shown and the process terminates.
+ * If the user cancels ('N' or 'n'), the function returns to the caller without
+ * exiting the program.
+ */
 void exitConfirmation() {
     drawHeader("EXIT CONFIRMATION");
     
@@ -123,7 +138,13 @@ void exitConfirmation() {
     }
 }
 
-/* ---- CASHIER MODE - 6 Features ---- */
+/**
+ * @brief Presents the Cashier portal menu and dispatches cashier-related actions.
+ *
+ * Displays the cashier interface and handles user selection for cashier features:
+ * Customer List, Customer Check Out, View Total Revenue, Sales Analytics, Peak Hour Analysis,
+ * Search Customer, returning to the main menu, and exit confirmation.
+ */
 void CashierMode() {
     char choice;
     while (1) {
@@ -210,6 +231,14 @@ void CashierMode() {
     }
 }
 
+/**
+ * @brief Presents the cashier login UI, authenticates credentials, and enters the cashier portal.
+ *
+ * Displays a styled login box, reads a username (line) and a masked password from console input,
+ * and validates them against the cashier credentials. On successful authentication it shows a
+ * success message, runs the loading sequence, and transfers control to the cashier mode. On
+ * failed authentication it shows an error and re-prompts for login.
+ */
 void cashierLogin() {
     drawHeader("CASHIER LOGIN");
     
@@ -253,7 +282,14 @@ void cashierLogin() {
 
 
 
-/* ---- CUSTOMER MODE - 7 Features ---- */
+/**
+ * @brief Presents the customer portal menu and handles customer interactions.
+ *
+ * Displays the Customer Portal UI and processes user input to perform product browsing,
+ * searching, purchasing, cart viewing, price-range filtering, wishlist management, and
+ * product recommendations. The function runs until the user returns to the main menu
+ * or chooses to exit the application.
+ */
 void CustomerMode() {
     char choice;
     while (1) {
@@ -308,7 +344,13 @@ void CustomerMode() {
     }
 }
 
-/* ---- CUSTOMER LOGIN ---- */
+/**
+ * @brief Prompts for customer credentials, validates them against stored users, and enters the customer portal on success.
+ *
+ * Prompts the user for a username and a masked password, compares the credentials against the in-memory user list,
+ * and on a successful match displays confirmation and transfers control to CustomerMode. On failure it displays an
+ * error message and returns to the login/signup menu.
+ */
 void customerLogin() {
     drawHeader("CUSTOMER LOGIN");
     
@@ -357,7 +399,18 @@ void customerLogin() {
 
 
 
-/* ---- CUSTOMER SIGNUP ---- */
+/**
+ * @brief Prompts for and registers a new customer account, then proceeds to the customer login flow.
+ *
+ * Collects full name, phone, username, and password from the user, persists the new account to storage,
+ * appends the account to the in-memory customer linked list, displays a success message, and then
+ * transfers control to the customer login flow.
+ *
+ * Side effects:
+ * - Calls saveNewUserToFile(...) to persist the new account.
+ * - Modifies the global customer list head (`first`) and its links.
+ * - Calls customerLogin().
+ */
 void customerSignup() {
     drawHeader("SIGN UP");
     
@@ -396,7 +449,15 @@ void customerSignup() {
     customerLogin();
 }
 
-/* ---- LOGIN OR SIGNUP ---- */
+/**
+ * @brief Presents a customer-facing menu to choose between login, sign up, returning to main menu, or exiting.
+ *
+ * Displays a persistent menu until the caller is returned; user input is handled via single-key presses:
+ * - Enter: invoke customerLogin()
+ * - '+' (plus) or ASCII 43: invoke customerSignup()
+ * - '0': return to the caller (back to main menu)
+ * - Esc (ASCII 27): invoke exitConfirmation()
+ */
 void loginOrSign() {
     char choice;
     while (1) {
@@ -436,7 +497,15 @@ void saveNewUserToFile(Login *temp) {
     file.close();
 }
 
-/* ---- LOAD USERS FROM FILE ---- */
+/**
+ * @brief Loads user accounts from the persistent CSV file into the in-memory linked list.
+ *
+ * Reads "l.csv" (expected header: "Name,Phone,Username,Password"), clears any existing in-memory
+ * user list, and populates the global `first` pointer with Login nodes created from each CSV row.
+ * If the file does not exist, it is created with the required header and no users are loaded.
+ *
+ * Empty lines in the file are ignored.
+ */
 void loadUsersFromFile() {
     while (first) {
         Login *d = first;
@@ -464,7 +533,16 @@ void loadUsersFromFile() {
     file.close();
 }
 
-/* ---- MANAGER MODE - 12 Features ---- */
+/**
+ * @brief Presents the Manager Portal UI and handles manager actions until exit.
+ *
+ * @details Displays an interactive menu that lets a manager add, view, modify,
+ * delete and search products; view customer lists; sort or reverse the product
+ * list; view top sellers and product statistics; filter low-stock items; and
+ * navigate back to the main menu or exit the application. The function runs an
+ * input-driven loop and dispatches the selected manager operations until the
+ * user returns to the main menu or confirms exit.
+ */
 void ManagerMode() {
     char choice;
     while (1) {
@@ -529,6 +607,13 @@ void ManagerMode() {
     }
 }
 
+/**
+ * @brief Presents a manager login prompt, validates credentials, and transfers control to the manager console.
+ *
+ * Displays a framed login UI, reads the manager username and a masked password, and compares them to the hard-coded
+ * credentials. On successful authentication it shows a success message, runs the loading sequence, and enters
+ * ManagerMode. On authentication failure it shows an error message and re-displays the login prompt.
+ */
 void managerLogin() {
     drawHeader("MANAGER LOGIN");
     
@@ -575,7 +660,13 @@ void managerLogin() {
 
 
 
-/* ---- MAIN ---- */
+/**
+ * @brief Initializes the application, loads persisted data, configures the console UI, and runs the main interactive menu loop.
+ *
+ * The function sets console colors and visibility, loads users, products, and customers from their files, displays the title and credits screens, and then enters a persistent menu loop that dispatches to the Manager, Customer, and Cashier portals or triggers the exit confirmation when ESC is pressed.
+ *
+ * @return int Exit code (0 on normal termination).
+ */
 int main() {
     system("color 17");
     

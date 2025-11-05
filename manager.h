@@ -29,10 +29,11 @@ void saveAllProductToFile();
 void loadProductFromFile();
 void deleteList();
 
-// algorithms (merge sort)
-Product* mergeSortProducts(Product* node, bool sortByPrice=false);
+// Advanced DSA algorithms
+Product* binarySearchById(int targetId);  // Binary Search O(log n)
+Product* mergeSortProducts(Product* node, bool sortByPrice=false);  // Merge Sort O(n log n)
 void sortProductsByName();
 void sortProductsByPrice();
-void displayTopSellers(int topN = 5);
+void displayTopSellers(int topN = 5);  // Using Heap/Priority Queue
 
 #endif // MANAGER_H

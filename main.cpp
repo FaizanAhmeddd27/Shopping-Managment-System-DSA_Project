@@ -29,7 +29,32 @@ void ManagerMode();
 void cashierLogin();
 void managerLogin();
 
-/* ---------- ASCII ART TITLE (CENTERED) ---------- */
+
+/* ---- Forward declarations ---- */
+void loginOrSign();
+void saveNewUserToFile(Login *temp);
+void loadUsersFromFile();
+void exitConfirmation();
+void showCredits();
+void CashierMode();
+void CustomerMode();
+void ManagerMode();
+void cashierLogin();
+void managerLogin();
+
+/* Missing Function Declarations Added */
+void showSalesAnalytics();
+void showPeakHourAnalysis();
+void searchCustomerInQueue();
+void filterByPriceRange();
+void addToWishlist();
+void viewWishlist();
+void showRecommendations();
+void reverseProductList();
+void showProductStatistics();
+void showLowStockAlerts();
+
+/* ---------- ASCII ART TITLE ---------- */
 void printTitle() {
     system("cls");
     setColor(Color::BRIGHT_CYAN);
@@ -49,9 +74,12 @@ void printTitle() {
     setColor(Color::BRIGHT_GREEN);
     gotoxy(32, 20); cout << "D A T A   S T R U C T U R E   P R O J E C T   2 0 2 5";
     setColor(Color::BRIGHT_WHITE);
+    
+    // ADD THIS: 5 second delay
+    Sleep(5000);
 }
 
-/* ---------- Credits (CENTERED) ---------- */
+/* ---------- Credits ---------- */
 void showCredits() {
     drawHeader("DEVELOPMENT TEAM");
     
@@ -71,7 +99,7 @@ void showCredits() {
     getch(); 
 }
 
-/* ---- Exit (CENTERED) ---- */
+/* ---- Exit ---- */
 void exitConfirmation() {
     drawHeader("EXIT CONFIRMATION");
     
@@ -95,27 +123,35 @@ void exitConfirmation() {
     }
 }
 
-/* ---- CASHIER MODE (CENTERED) ---- */
+/* ---- CASHIER MODE - 6 Features ---- */
 void CashierMode() {
     char choice;
     while (1) {
         drawHeader("CASHIER PORTAL");
         
-        drawAnimatedBox(40, 13, 48, 12, Color::BRIGHT_GREEN);
+        drawAnimatedBox(38, 11, 54, 18, Color::BRIGHT_GREEN);
         
         setColor(Color::BRIGHT_CYAN);
-        gotoxy(52, 15); cout << "1. Customer List";
+        gotoxy(50, 13); cout << "1. Customer List";
         setColor(Color::BRIGHT_YELLOW);
-        gotoxy(52, 16); cout << "2. Customer Check Out";
+        gotoxy(50, 14); cout << "2. Customer Check Out";
         setColor(Color::BRIGHT_GREEN);
-        gotoxy(52, 17); cout << "3. View Total Revenue";
+        gotoxy(50, 15); cout << "3. View Total Revenue";
         setColor(Color::BRIGHT_MAGENTA);
-        gotoxy(52, 19); cout << "0. Back to Main Menu";
+        gotoxy(50, 16); cout << "4. Sales Analytics";
+        setColor(Color::BRIGHT_CYAN);
+        gotoxy(50, 17); cout << "5. Peak Hour Analysis";
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(50, 18); cout << "6. Search Customer";
+        
+        setColor(Color::BRIGHT_RED);
+        gotoxy(50, 21); cout << "0. Back to Main Menu";
         
         setColor(Color::BRIGHT_WHITE);
-        gotoxy(52, 22); cout << "Enter Key: ";
+        gotoxy(52, 25); cout << "Enter Key: ";
         choice = getch();
 
+        
         if (choice=='1') customerListDisplay();
         else if (choice=='2') dequeueCustomer();
         else if (choice=='3') {
@@ -166,22 +202,28 @@ void CashierMode() {
             setColor(Color::BRIGHT_WHITE);
             gotoxy(50, 26); getch();
         }
-        else if (choice=='0') return;
+        else if (choice=='4') showSalesAnalytics();
+        else if (choice=='5') showPeakHourAnalysis();
+        else if (choice=='6') searchCustomerInQueue();
+        else if (choice=='0') {  return; }
         else if (choice==27) exitConfirmation();
     }
 }
 
-/* ---- CASHIER LOGIN (CENTERED) ---- */
 void cashierLogin() {
     drawHeader("CASHIER LOGIN");
     
     drawAnimatedBox(40, 14, 50, 10, Color::BRIGHT_GREEN);
     
     string username, password;
+    
+    // FIX: Clear input buffer first
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    cin >> username;
+    getline(cin, username);  // Changed from cin >> to getline
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -209,49 +251,78 @@ void cashierLogin() {
     }
 }
 
-/* ---- CUSTOMER MODE (CENTERED) ---- */
+
+
+/* ---- CUSTOMER MODE - 7 Features ---- */
 void CustomerMode() {
     char choice;
     while (1) {
         drawHeader("CUSTOMER PORTAL");
         
-        drawAnimatedBox(40, 13, 48, 14, Color::BRIGHT_CYAN);
+        drawAnimatedBox(38, 11, 54, 19, Color::BRIGHT_CYAN);
         
         setColor(Color::BRIGHT_CYAN);
-        gotoxy(50, 15); cout << "1. Display All Products";
+        gotoxy(48, 13); cout << "1. Display All Products";
         setColor(Color::BRIGHT_YELLOW);
-        gotoxy(50, 16); cout << "2. Search Products";
+        gotoxy(48, 14); cout << "2. Search Products";
         setColor(Color::BRIGHT_GREEN);
-        gotoxy(50, 17); cout << "3. Buy Products";
+        gotoxy(48, 15); cout << "3. Buy Products";
         setColor(Color::BRIGHT_MAGENTA);
-        gotoxy(50, 18); cout << "4. Display Cart";
+        gotoxy(48, 16); cout << "4. Display Cart";
+        setColor(Color::BRIGHT_BLUE);
+        gotoxy(48, 17); cout << "5. Filter by Price Range";
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(48, 18); cout << "6. Wishlist";
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(48, 19); cout << "7. Recommendations";
+        
         setColor(Color::BRIGHT_RED);
-        gotoxy(50, 20); cout << "0. Back to Main Menu";
+        gotoxy(48, 22); cout << "0. Back to Main Menu";
         
         setColor(Color::BRIGHT_WHITE);
-        gotoxy(52, 24); cout << "Enter Key: ";
+        gotoxy(50, 26); cout << "Enter Key: ";
         choice = getch();
+        
         
         if (choice=='1') { displayProduct(); gotoxy(50,26); getch(); }
         else if (choice=='2') searchProductUI();
         else if (choice=='3') { cCart(); buyProductUI(); }
         else if (choice=='4') displayCart();
-        else if (choice=='0') return;
+        else if (choice=='5') filterByPriceRange();
+        else if (choice=='6') {
+            drawHeader("WISHLIST OPTIONS");
+            drawAnimatedBox(45, 15, 40, 8, Color::BRIGHT_MAGENTA);
+            setColor(Color::BRIGHT_CYAN);
+            gotoxy(52, 17); cout << "1. Add to Wishlist";
+            setColor(Color::BRIGHT_YELLOW);
+            gotoxy(52, 18); cout << "2. View Wishlist";
+            setColor(Color::BRIGHT_WHITE);
+            gotoxy(52, 20); cout << "Choice: ";
+            char wChoice = getch();
+            if (wChoice == '1') addToWishlist();
+            else if (wChoice == '2') viewWishlist();
+        }
+        else if (choice=='7') showRecommendations();
+        else if (choice=='0') {  return; }
         else if (choice==27) exitConfirmation();
     }
 }
 
-/* ---- CUSTOMER LOGIN (CENTERED) ---- */
+/* ---- CUSTOMER LOGIN ---- */
 void customerLogin() {
     drawHeader("CUSTOMER LOGIN");
     
     drawAnimatedBox(40, 14, 50, 10, Color::BRIGHT_CYAN);
     
     string username, password;
+    
+    // FIX: Clear input buffer first
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    cin >> username;
+    getline(cin, username);  // Changed from cin >> to getline
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -284,7 +355,9 @@ void customerLogin() {
     loginOrSign();
 }
 
-/* ---- CUSTOMER SIGNUP (CENTERED) ---- */
+
+
+/* ---- CUSTOMER SIGNUP ---- */
 void customerSignup() {
     drawHeader("SIGN UP");
     
@@ -323,7 +396,7 @@ void customerSignup() {
     customerLogin();
 }
 
-/* ---- LOGIN OR SIGNUP (CENTERED) ---- */
+/* ---- LOGIN OR SIGNUP ---- */
 void loginOrSign() {
     char choice;
     while (1) {
@@ -342,6 +415,7 @@ void loginOrSign() {
         
         setColor(Color::BRIGHT_WHITE);
         choice = getch();
+        
         if (choice==13) customerLogin();
         else if (choice==43 || choice=='+') customerSignup();
         else if (choice=='0') return;
@@ -390,60 +464,85 @@ void loadUsersFromFile() {
     file.close();
 }
 
-/* ---- MANAGER MODE (CENTERED) ---- */
+/* ---- MANAGER MODE - 12 Features ---- */
 void ManagerMode() {
     char choice;
     while (1) {
         drawHeader("MANAGER PORTAL");
         
-        drawAnimatedBox(38, 12, 54, 16, Color::BRIGHT_MAGENTA);
+        drawAnimatedBox(36, 10, 58, 24, Color::BRIGHT_MAGENTA);
         
         setColor(Color::BRIGHT_GREEN);
-        gotoxy(50, 14); cout << "1. Add New Product";
+        gotoxy(48, 12); cout << "1.  Add New Product";
         setColor(Color::BRIGHT_CYAN);
-        gotoxy(50, 15); cout << "2. Display All Products";
+        gotoxy(48, 13); cout << "2.  Display All Products";
         setColor(Color::BRIGHT_YELLOW);
-        gotoxy(50, 16); cout << "3. Modify Product";
+        gotoxy(48, 14); cout << "3.  Modify Product";
         setColor(Color::BRIGHT_RED);
-        gotoxy(50, 17); cout << "4. Delete Product";
+        gotoxy(48, 15); cout << "4.  Delete Product";
         setColor(Color::BRIGHT_BLUE);
-        gotoxy(50, 18); cout << "5. Customer List";
+        gotoxy(48, 16); cout << "5.  Customer List";
         setColor(Color::BRIGHT_MAGENTA);
-        gotoxy(50, 19); cout << "6. Sort by Name";
+        gotoxy(48, 17); cout << "6.  Sort by Name";
         setColor(Color::BRIGHT_CYAN);
-        gotoxy(50, 20); cout << "7. Sort by Price";
+        gotoxy(48, 18); cout << "7.  Sort by Price";
         setColor(Color::BRIGHT_YELLOW);
-        gotoxy(50, 21); cout << "8. Top Sellers";
-        setColor(Color::BRIGHT_WHITE);
-        gotoxy(50, 23); cout << "0. Back to Main Menu";
+        gotoxy(48, 19); cout << "8.  Top Sellers";
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(48, 20); cout << "9.  Search Product";
+        setColor(Color::BRIGHT_MAGENTA);
+        gotoxy(48, 21); cout << "10. Reverse Product List";
+        setColor(Color::BRIGHT_CYAN);
+        gotoxy(48, 22); cout << "11. Product Statistics";
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(48, 23); cout << "12. Low Stock Alerts";
         
-        gotoxy(52, 26); cout << "Enter Key: ";
+        setColor(Color::BRIGHT_WHITE);
+        gotoxy(48, 26); cout << "0.  Back to Main Menu";
+        
+        gotoxy(50, 30); cout << "Enter Key: ";
         choice = getch();
+        
         
         if (choice=='1') addProduct();
         else if (choice=='2') { displayProduct(); gotoxy(50,26); getch(); }
         else if (choice=='3') modifyProduct();
         else if (choice=='4') deleteProduct();
         else if (choice=='5') customerListDisplay();
-        else if (choice=='6') { sortProductsByName(); gotoxy(45,25); setColor(Color::BRIGHT_GREEN); cout << "Sorted by name!"; gotoxy(50,26); getch(); }
-        else if (choice=='7') { sortProductsByPrice(); gotoxy(45,25); setColor(Color::BRIGHT_GREEN); cout << "Sorted by price!"; gotoxy(50,26); getch(); }
+        else if (choice=='6') { sortProductsByName(); showSuccessToast("Sorted by name!", 60, 25); gotoxy(50,26); getch(); }
+        else if (choice=='7') { sortProductsByPrice(); showSuccessToast("Sorted by price!", 60, 25); gotoxy(50,26); getch(); }
         else if (choice=='8') displayTopSellers(5);
-        else if (choice=='0') return;
+        else if (choice=='9') searchProductUI();
+        else if (choice=='a' || choice=='A') reverseProductList();
+        else if (choice=='b' || choice=='B') showProductStatistics();
+        else if (choice=='c' || choice=='C') showLowStockAlerts();
+        else if (choice=='0') { return; }
         else if (choice==27) exitConfirmation();
+        
+        // Extended keys for 10-12
+        if (choice=='1') {
+            char next = getch();
+            if (next=='0') reverseProductList();
+            else if (next=='1') showProductStatistics();
+            else if (next=='2') showLowStockAlerts();
+        }
     }
 }
 
-/* ---- MANAGER LOGIN (CENTERED) ---- */
 void managerLogin() {
     drawHeader("MANAGER LOGIN");
     
     drawAnimatedBox(40, 14, 50, 10, Color::BRIGHT_MAGENTA);
     
     string username, password;
+    
+    // FIX: Clear input buffer first
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    cin >> username;
+    getline(cin, username);  // Changed from cin >> to getline
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -471,47 +570,27 @@ void managerLogin() {
     }
 }
 
-/* ---- MAIN (WITH BETTER COLORS) ---- */
+
+
+
+
+
+/* ---- MAIN ---- */
 int main() {
-    // ========== CHOOSE YOUR COLOR SCHEME ==========
+    system("color 17");
     
-    // 🌊 OPTION 1: Ocean Theme - Dark Blue bg + Bright Cyan text (Currently Active)
-    system("color 1B");
-    
-    // 🌲 OPTION 2: Forest Theme - Dark Green bg + Bright Yellow text
-    // system("color 2E");
-    
-    // 🌙 OPTION 3: Night Theme - Black bg + Bright Cyan text  
-    // system("color 0B");
-    
-    // 💎 OPTION 4: Matrix Theme - Black bg + Bright Green text
-    // system("color 0A");
-    
-    // 🔥 OPTION 5: Fire Theme - Dark Red bg + Bright Yellow text
-    // system("color 4E");
-    
-    // 👑 OPTION 6: Royal Theme - Purple bg + Bright White text
-    // system("color 5F");
-    
-    // ☁️ OPTION 7: Sky Theme - Blue bg + Bright White text
-    // system("color 1F");
-    
-    // 🌺 OPTION 8: Sunset Theme - Dark Magenta bg + Bright Yellow text
-    // system("color 5E");
-    
-    // 🍃 OPTION 9: Fresh Theme - Green bg + Bright White text
-    // system("color 2F");
-    
-    // Maximize window for better display
     maximizeConsole();
+    hideCursor();
     
     loadUsersFromFile();
     loadProductFromFile();
     loadCustomerFromFile();
 
     printTitle();
-    Sleep(2000);
+    
     showCredits();
+    
+    showCursor();
 
     char choice;
     while (1) {
@@ -533,14 +612,14 @@ int main() {
         gotoxy(54, 26); cout << "Enter choice: ";
         
         choice = getch();
+        
         if (choice=='1') managerLogin();
         else if (choice=='2') loginOrSign();
         else if (choice=='3') cashierLogin();
         else if (choice==27) exitConfirmation();
         else {
-            setColor(Color::BRIGHT_RED);
-            gotoxy(52, 28); cout << "Invalid! Try again...";
-            Sleep(800);
+            showErrorToast("Invalid choice! Try again...", 60, 28);
+            
         }
     }
 }

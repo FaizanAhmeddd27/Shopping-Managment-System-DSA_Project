@@ -1,7 +1,6 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-// Define Windows version for modern console functions
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #endif
@@ -10,7 +9,7 @@
 #include <windows.h>
 using namespace std;
 
-/* ---------- COLOR CONSTANTS ---------- */
+/* ---------- ENHANCED COLOR PALETTE ---------- */
 enum class Color {
     BLACK = 0, BLUE = 1, GREEN = 2, CYAN = 3, RED = 4,
     MAGENTA = 5, YELLOW = 6, WHITE = 7, GRAY = 8,
@@ -28,160 +27,244 @@ inline void setColor(Color fg, Color bg = Color::BLACK) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)fg | ((int)bg << 4));
 }
 
-// Maximize console window
 inline void maximizeConsole() {
     HWND console = GetConsoleWindow();
     ShowWindow(console, SW_MAXIMIZE);
 }
 
-// Set console to full screen mode (alternative method)
-inline void setFullScreen() {
-    keybd_event(VK_MENU, 0x38, 0, 0);
-    keybd_event(VK_RETURN, 0x1c, 0, 0);
-    keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
-    keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
+inline void hideCursor() {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE;
+    SetConsoleCursorInfo(consoleHandle, &info);
 }
 
-/* ---------- BIG TEXT PRINT ---------- */
-inline void printBigText(const string &s, int x, int y, Color color = Color::BRIGHT_CYAN) {
-    setColor(color);
-    gotoxy(x, y);
-    cout << s;
-    setColor(Color::BRIGHT_WHITE);
+inline void showCursor() {
+    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = TRUE;
+    SetConsoleCursorInfo(consoleHandle, &info);
 }
 
-/* ---------- SIMPLE FADE IN ---------- */
-inline void fadeIn() {
+
+
+
+
+/* ---------- CENTERED LOADING BAR ---------- */
+inline void loadingBar(int duration = 1500) {
     system("cls");
-}
-
-/* ---------- LOADING BAR (FIXED - NO OVERLAP) ---------- */
-inline void loadingBar(int x = 30, int y = 20, int w = 50) {
-    system("cls");
-    const int left = x, top = y, right = x + w, bottom = y + 2;
+    hideCursor();
     
-    // Draw loading text above the bar
+    int centerX = 40;
+    int centerY = 14;
+    int barWidth = 50;
+    
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(left + w/2 - 5, top - 2);
-    cout << "LOADING...";
+    gotoxy(centerX + 17, centerY - 2);
+    cout << "LOADING SYSTEM...";
     
-    // Draw border
     setColor(Color::BRIGHT_CYAN);
-    for (int i = left; i <= right; ++i) {
-        gotoxy(i, top);     cout << (char)205;
-        gotoxy(i, bottom);  cout << (char)205;
-    }
+    gotoxy(centerX, centerY);
+    cout << char(201);
+    for (int i = 0; i < barWidth; i++) cout << char(205);
+    cout << char(187);
     
-    gotoxy(left, top);     cout << (char)201;
-    gotoxy(right, top);    cout << (char)187;
-    gotoxy(left, bottom);  cout << (char)200;
-    gotoxy(right, bottom); cout << (char)188;
-
-    Color grad[] = { Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW };
-
-    // Progress bar animation
-    for (int p = 0; p <= 100; p += 5) {
-        int len = ((w - 1) * p) / 100;
-        for (int i = 0; i < len; ++i) {
-            setColor(grad[i % 3]);
-            gotoxy(left + 1 + i, top + 1);
-            cout << (char)219;
+    gotoxy(centerX, centerY + 2);
+    cout << char(200);
+    for (int i = 0; i < barWidth; i++) cout << char(205);
+    cout << char(188);
+    
+    Color rainbow[] = {Color::BRIGHT_RED, Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN, 
+                       Color::BRIGHT_CYAN, Color::BRIGHT_BLUE, Color::BRIGHT_MAGENTA};
+    
+    int steps = 20;
+    int delayPerStep = duration / steps;
+    
+    for (int p = 0; p <= steps; p++) {
+        int len = (barWidth * p) / steps;
+        for (int i = 0; i < len; i++) {
+            setColor(rainbow[(i * 6) / barWidth]);
+            gotoxy(centerX + 1 + i, centerY + 1);
+            cout << char(219);
         }
-        gotoxy(left + w/2 - 4, bottom + 2);
-        setColor(Color::BRIGHT_YELLOW);
-        cout << "[ " << setw(3) << p << "% ]";
-        Sleep(20);
+        
+        int percent = (p * 100) / steps;
+        gotoxy(centerX + barWidth/2 - 2, centerY + 4);
+        setColor(percent < 30 ? Color::BRIGHT_RED : percent < 70 ? Color::BRIGHT_YELLOW : Color::BRIGHT_GREEN);
+        cout << "[ " << setw(3) << percent << "% ]";
+        Sleep(delayPerStep);
     }
     
-    gotoxy(left + w/2 - 5, bottom + 4);
+    gotoxy(centerX + 18, centerY + 6);
     setColor(Color::BRIGHT_GREEN);
     cout << "COMPLETE!";
-    Sleep(500);
+    Sleep(400);
+    showCursor();
     setColor(Color::BRIGHT_WHITE);
 }
 
-/* ---------- MODERN HEADER (CENTERED) ---------- */
+/* ---------- FAST HEADER WITH GRADIENT ---------- */
 inline void drawHeader(const string &title) {
     system("cls");
     
-    int centerX = 25;  // Adjusted for centering
+    int centerX = 20;
     
-    // Top line
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(centerX, 2); 
-    for (int i = 0; i < 80; ++i) cout << (char)220;
+    gotoxy(centerX, 2);
+    for (int i = 0; i < 90; i++) cout << char(220);
     
-    // Header box with gradient effect
     setColor(Color::BRIGHT_CYAN, Color::BLUE);
-    gotoxy(centerX, 3); cout << (char)201 << string(78, (char)205) << (char)187;
-    gotoxy(centerX, 4); cout << (char)186 << string(78, ' ') << (char)186;
-    gotoxy(centerX, 5); cout << (char)186 << string(78, ' ') << (char)186;
-    gotoxy(centerX, 6); cout << (char)200 << string(78, (char)205) << (char)188;
+    gotoxy(centerX, 3); cout << char(201) << string(88, char(205)) << char(187);
     
-    // Title centered with larger appearance
-    int titleX = centerX + 39 - title.length()/2;
-    gotoxy(titleX, 4);
     setColor(Color::BRIGHT_YELLOW, Color::BLUE);
-    cout << "  ";
+    gotoxy(centerX, 4); cout << char(186) << string(88, ' ') << char(186);
+    gotoxy(centerX, 5); cout << char(186) << string(88, ' ') << char(186);
+    
+    setColor(Color::BRIGHT_CYAN, Color::BLUE);
+    gotoxy(centerX, 6); cout << char(200) << string(88, char(205)) << char(188);
+    
+    int titleX = centerX + 44 - title.length()/2;
+    setColor(Color::BRIGHT_YELLOW, Color::BLUE);
     gotoxy(titleX, 5);
     cout << title;
     
-    // Bottom line
-    setColor(Color::BRIGHT_CYAN, Color::BLACK);
-    gotoxy(centerX, 7); 
-    for (int i = 0; i < 80; ++i) cout << (char)223;
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(centerX, 7);
+    for (int i = 0; i < 90; i++) cout << char(223);
     
     setColor(Color::BRIGHT_WHITE, Color::BLACK);
     gotoxy(0, 9);
 }
 
-/* ---------- FAST PRINT (NO ANIMATION) ---------- */
+/* ---------- FAST PRINT ---------- */
 inline void slowPrint(const string &s, Color fg = Color::BRIGHT_CYAN, int ms = 0) {
     setColor(fg);
     cout << s;
     setColor(Color::BRIGHT_WHITE);
 }
 
-/* ---------- CENTERED BOX ---------- */
+/* ---------- FAST ANIMATED BOX ---------- */
 inline void drawAnimatedBox(int x, int y, int w, int h, Color borderColor = Color::BRIGHT_CYAN) {
     setColor(borderColor);
     
-    // Draw all at once (no animation)
     gotoxy(x, y); 
-    cout << (char)201;
-    for (int i = 1; i < w - 1; ++i) cout << (char)205;
-    cout << (char)187;
+    cout << char(201);
+    for (int i = 1; i < w - 1; ++i) cout << char(205);
+    cout << char(187);
     
     for (int i = 1; i < h - 1; ++i) {
-        gotoxy(x, y + i); cout << (char)186;
-        gotoxy(x + w - 1, y + i); cout << (char)186;
+        gotoxy(x, y + i); cout << char(186);
+        gotoxy(x + w - 1, y + i); cout << char(186);
     }
     
     gotoxy(x, y + h - 1); 
-    cout << (char)200;
-    for (int i = 1; i < w - 1; ++i) cout << (char)205;
-    cout << (char)188;
+    cout << char(200);
+    for (int i = 1; i < w - 1; ++i) cout << char(205);
+    cout << char(188);
     
     setColor(Color::BRIGHT_WHITE);
 }
 
-/* ---------- NO PARTICLE EFFECT ---------- */
-inline void particleEffect(int duration = 0) {
-    // Empty - no particles
-}
-
-/* ---------- INSTANT TYPEWRITER ---------- */
-inline void typewriter(const string &s, int x, int y, int delay = 0) {
-    gotoxy(x, y);
-    setColor(Color::BRIGHT_YELLOW);
-    cout << s;
+/* ---------- CENTERED SPINNER ---------- */
+inline void showSpinner(int duration = 500, int centerX = 60, int centerY = 15) {
+    char spinner[] = {'|', '/', '-', '\\'};
+    setColor(Color::BRIGHT_CYAN);
+    int loops = duration / 80;
+    for (int i = 0; i < loops; i++) {
+        gotoxy(centerX, centerY);
+        cout << "  " << spinner[i % 4] << " Processing...";
+        Sleep(80);
+    }
+    gotoxy(centerX, centerY);
+    cout << "                    ";
     setColor(Color::BRIGHT_WHITE);
 }
 
-/* ---------- NO WAVE PRINT ---------- */
-inline void wavePrint(const string &s, int delay = 0) {
-    setColor(Color::BRIGHT_CYAN);
-    cout << s;
+/* ---------- CENTERED TOAST MESSAGES ---------- */
+inline void showSuccessToast(const string &message, int centerX = 50, int centerY = 24) {
+    gotoxy(centerX - message.length()/2, centerY);
+    setColor(Color::BRIGHT_GREEN, Color::BLACK);
+    cout << " " << message << " ";
+    Sleep(800);
+    
+    gotoxy(centerX - message.length()/2, centerY);
+    cout << string(message.length() + 2, ' ');
+    setColor(Color::BRIGHT_WHITE);
+}
+
+inline void showErrorToast(const string &message, int centerX = 50, int centerY = 24) {
+    gotoxy(centerX - message.length()/2, centerY);
+    setColor(Color::BRIGHT_RED, Color::BLACK);
+    cout << " " << message << " ";
+    Sleep(800);
+    
+    gotoxy(centerX - message.length()/2, centerY);
+    cout << string(message.length() + 2, ' ');
+    setColor(Color::BRIGHT_WHITE);
+}
+
+inline void showInfoToast(const string &message, int centerX = 50, int centerY = 24) {
+    gotoxy(centerX - message.length()/2, centerY);
+    setColor(Color::BRIGHT_CYAN, Color::BLACK);
+    cout << " " << message << " ";
+    Sleep(600);
+    
+    gotoxy(centerX - message.length()/2, centerY);
+    cout << string(message.length() + 2, ' ');
+    setColor(Color::BRIGHT_WHITE);
+}
+
+/* ---------- PULSE TEXT ---------- */
+inline void pulseText(const string &text, int x, int y, int cycles = 2) {
+    for (int c = 0; c < cycles; c++) {
+        gotoxy(x, y);
+        setColor(Color::BRIGHT_YELLOW);
+        cout << text;
+        Sleep(150);
+        
+        gotoxy(x, y);
+        setColor(Color::YELLOW);
+        cout << text;
+        Sleep(150);
+    }
+    setColor(Color::BRIGHT_WHITE);
+}
+
+/* ---------- TYPEWRITER EFFECT ---------- */
+inline void typewriter(const string &s, int x, int y, int delay = 30) {
+    gotoxy(x, y);
+    setColor(Color::BRIGHT_YELLOW);
+    for (char c : s) {
+        cout << c << flush;
+        if (delay > 0) Sleep(delay);
+    }
+    setColor(Color::BRIGHT_WHITE);
+}
+
+
+inline void drawDynamicBox(int x, int y, int w, int h, Color borderColor = Color::BRIGHT_CYAN) {
+    setColor(borderColor);
+    
+    // Top border
+    gotoxy(x, y); 
+    cout << char(201);
+    for (int i = 1; i < w - 1; ++i) cout << char(205);
+    cout << char(187);
+    
+    // Side borders
+    for (int i = 1; i < h - 1; ++i) {
+        gotoxy(x, y + i); cout << char(186);
+        gotoxy(x + w - 1, y + i); cout << char(186);
+    }
+    
+    // Bottom border
+    gotoxy(x, y + h - 1); 
+    cout << char(200);
+    for (int i = 1; i < w - 1; ++i) cout << char(205);
+    cout << char(188);
+    
     setColor(Color::BRIGHT_WHITE);
 }
 

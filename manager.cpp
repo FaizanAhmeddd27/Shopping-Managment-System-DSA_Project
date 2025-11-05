@@ -4,6 +4,8 @@
 #include <sstream>
 #include <algorithm>
 #include <conio.h>
+#include <cmath>
+#include <stack>
 #include "animation.h"
 
 Product *head = nullptr;
@@ -20,87 +22,228 @@ void deleteList() {
     head = nullptr;
 }
 
+/* ---------- BINARY SEARCH (Req: sorted by ID) ---------- */
+Product* binarySearchById(int targetId) {
+    vector<Product*> arr;
+    for (Product* t = head; t; t = t->next) arr.push_back(t);
+    
+    sort(arr.begin(), arr.end(), [](Product* a, Product* b) { 
+        return a->proId < b->proId; 
+    });
+    
+    int left = 0, right = arr.size() - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (arr[mid]->proId == targetId) return arr[mid];
+        if (arr[mid]->proId < targetId) left = mid + 1;
+        else right = mid - 1;
+    }
+    return nullptr;
+}
+
 void addProduct() {
     drawHeader("Add New Product");
+    
+    drawAnimatedBox(15, 10, 75, 12, Color::BRIGHT_GREEN);
+    
     Product *n = new Product;
-    gotoxy(20, 11); cout << "Enter Product Info . . .";
-    gotoxy(20, 13); cout << "Product Name     : "; cin.ignore(); getline(cin, n->proName);
-    gotoxy(20, 14); cout << "Product ID       : "; cin >> n->proId;
-    gotoxy(20, 15); cout << "Product Price    : "; cin >> n->proPrice;
-    gotoxy(20, 16); cout << "Product Quantity : "; cin >> n->proNum;
+    
+    setColor(Color::BRIGHT_YELLOW);
+    gotoxy(20, 12); cout << "Enter Product Info...";
+    
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(20, 14); cout << "Product Name     : "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin.ignore(); getline(cin, n->proName);
+    
+    setColor(Color::BRIGHT_GREEN);
+    gotoxy(20, 15); cout << "Product ID       : "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin >> n->proId;
+    
+    setColor(Color::BRIGHT_YELLOW);
+    gotoxy(20, 16); cout << "Product Price    : "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin >> n->proPrice;
+    
+    setColor(Color::BRIGHT_MAGENTA);
+    gotoxy(20, 17); cout << "Product Quantity : "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin >> n->proNum;
+    
     n->soldCount = 0; n->next = nullptr;
-    // append to memory list
+    
+    showSpinner(800, 45, 19);
+    
     if (!head) head = n;
     else { Product *t=head; while (t->next) t=t->next; t->next = n; }
-    // append to file
+    
     saveNewProductToFile(n);
-    gotoxy(25, 19); cout << "Product \"" << n->proName << "\" added successfully.";
+    
+    showSuccessToast("Product '" + n->proName + "' added!", 60, 20);
+    
+    setColor(Color::BRIGHT_WHITE);
     gotoxy(30, 23); getch();
 }
 
 void displayProduct() {
     drawHeader("All Products");
+    
     Product *t = head;
-    if (!head) { gotoxy(34, 12); cout << "No Product is Found"; getch(); return; }
-    gotoxy(12, 11);
-    cout << left << setw(12) << "Product ID" << setw(30) << "Product Name" << setw(12) << "Price" << setw(10) << "Quantity" << setw(10) << "Sold" << endl;
-    gotoxy(12, 12); cout << string(80, '=') << endl;
-    int y = 13;
-    while (t) {
-        gotoxy(12, y++); cout << left << setw(12) << t->proId << setw(30) << t->proName << setw(12) << t->proPrice << setw(10) << t->proNum << setw(10) << t->soldCount << endl;
-        t = t->next;
+    if (!head) { 
+        showErrorToast("No Product is Found", 60, 12);
+        getch(); 
+        return; 
     }
-    gotoxy(12, y + 1); cout << "Total Products : " << countProduct();
+    
+    gotoxy(12, 11);
+    setColor(Color::BRIGHT_YELLOW);
+    cout << left << setw(12) << "Product ID";
+    setColor(Color::BRIGHT_CYAN);
+    cout << setw(30) << "Product Name";
+    setColor(Color::BRIGHT_GREEN);
+    cout << setw(12) << "Price";
+    setColor(Color::BRIGHT_MAGENTA);
+    cout << setw(10) << "Quantity";
+    setColor(Color::BRIGHT_RED);
+    cout << setw(10) << "Sold" << endl;
+    
+    gotoxy(12, 12); 
+    setColor(Color::BRIGHT_CYAN);
+    cout << string(80, '=') << endl;
+    
+    int y = 13;
+    Color rowColors[] = {Color::BRIGHT_WHITE, Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW};
+    int idx = 0;
+    
+    while (t) {
+        setColor(rowColors[idx % 4]);
+        gotoxy(12, y++); 
+        cout << left << setw(12) << t->proId 
+             << setw(30) << t->proName 
+             << setw(12) << t->proPrice 
+             << setw(10) << t->proNum 
+             << setw(10) << t->soldCount << endl;
+        Sleep(30);
+        t = t->next;
+        idx++;
+    }
+    
+    setColor(Color::BRIGHT_GREEN);
+    gotoxy(12, y + 1); 
+    cout << "Total Products: " << countProduct();
+    
+    setColor(Color::BRIGHT_WHITE);
 }
 
 void modifyProduct() {
     drawHeader("Modify Product");
-    if (!head) { gotoxy(34, 12); cout << "Store is Empty"; getch(); return; }
-    int id; gotoxy(20, 11); cout << "Enter Product's ID : "; cin >> id;
-    Product *t = head;
-    while (t) {
-        if (t->proId == id) {
-            gotoxy(12, 13); cout << "Found:";
-            gotoxy(12, 15); cout << left << setw(12) << t->proId << setw(30) << t->proName << setw(12) << t->proPrice << setw(10) << t->proNum << endl;
-            gotoxy(25, 17); cout << "Enter new info:";
-            gotoxy(30, 18); cout << "New Product ID: "; cin >> t->proId;
-            gotoxy(30, 19); cout << "New Product Name: "; cin.ignore(); getline(cin, t->proName);
-            gotoxy(30, 20); cout << "New Price: "; cin >> t->proPrice;
-            gotoxy(30, 21); cout << "New Quantity: "; cin >> t->proNum;
-            saveAllProductToFile();
-            gotoxy(30, 23); cout << "Product modified."; gotoxy(30, 25); getch();
-            return;
-        }
-        t = t->next;
+    
+    if (!head) { 
+        showErrorToast("Store is Empty", 60, 12);
+        getch(); 
+        return; 
     }
-    gotoxy(30, 14); cout << "No Product Found"; gotoxy(30, 23); getch();
+    
+    int id; 
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(20, 11); cout << "Enter Product's ID: "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin >> id;
+    
+    showSpinner(600, 45, 12);
+    
+    Product *t = binarySearchById(id);
+    
+    if (t) {
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(12, 13); cout << "Found:";
+        
+        drawAnimatedBox(10, 14, 80, 10, Color::BRIGHT_YELLOW);
+        
+        setColor(Color::BRIGHT_CYAN);
+        gotoxy(12, 16); 
+        cout << left << setw(12) << t->proId << setw(30) << t->proName 
+             << setw(12) << t->proPrice << setw(10) << t->proNum << endl;
+        
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(25, 18); cout << "Enter new info:";
+        
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(30, 19); cout << "New Product ID: "; 
+        setColor(Color::BRIGHT_WHITE);
+        cin >> t->proId;
+        
+        setColor(Color::BRIGHT_CYAN);
+        gotoxy(30, 20); cout << "New Product Name: "; 
+        setColor(Color::BRIGHT_WHITE);
+        cin.ignore(); getline(cin, t->proName);
+        
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(30, 21); cout << "New Price: "; 
+        setColor(Color::BRIGHT_WHITE);
+        cin >> t->proPrice;
+        
+        setColor(Color::BRIGHT_MAGENTA);
+        gotoxy(30, 22); cout << "New Quantity: "; 
+        setColor(Color::BRIGHT_WHITE);
+        cin >> t->proNum;
+        
+        saveAllProductToFile();
+        showSuccessToast("Product modified successfully!", 60, 24);
+        
+        setColor(Color::BRIGHT_WHITE);
+        gotoxy(30, 25); getch();
+    } else {
+        showErrorToast("No Product Found", 60, 14);
+        setColor(Color::BRIGHT_WHITE);
+        gotoxy(30, 23); getch();
+    }
 }
 
 void deleteProduct() {
     drawHeader("Delete Product");
-    if (!head) { gotoxy(34, 12); cout << "Store is Empty"; getch(); return; }
-    int id; gotoxy(20, 11); cout << "Enter Product's ID : "; cin >> id;
+    
+    if (!head) { 
+        showErrorToast("Store is Empty", 60, 12);
+        getch(); 
+        return; 
+    }
+    
+    int id; 
+    setColor(Color::BRIGHT_RED);
+    gotoxy(20, 11); cout << "Enter Product's ID to DELETE: "; 
+    setColor(Color::BRIGHT_WHITE);
+    cin >> id;
+    
+    showSpinner(600, 55, 12);
+    
     Product *t = head, *prev = nullptr;
     while (t) {
         if (t->proId == id) {
             if (!prev) head = t->next;
             else prev->next = t->next;
-            gotoxy(25, 18); cout << "Product \"" << t->proName << "\" deleted successfully.";
+            
+            showSuccessToast("Product '" + t->proName + "' deleted!", 60, 18);
+            
             delete t;
             saveAllProductToFile();
+            
+            setColor(Color::BRIGHT_WHITE);
             gotoxy(30, 23); getch();
             return;
         }
         prev = t; t = t->next;
     }
-    gotoxy(30, 14); cout << "Product ID not found"; gotoxy(30, 23); getch();
+    
+    showErrorToast("Product ID not found", 60, 14);
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 23); getch();
 }
 
 void saveNewProductToFile(Product *temp) {
-    // ensure file exists
     ofstream file("p.csv", ios::app);
     if (!file.is_open()) return;
-    // if file was empty we might need a header, but appending is ok for now
     file << temp->proId << "," << temp->proName << "," << temp->proPrice << "," << temp->proNum << "," << temp->soldCount << "\n";
     file.close();
 }
@@ -121,7 +264,6 @@ void loadProductFromFile() {
     deleteList();
     ifstream file("p.csv");
     if (!file.is_open()) {
-        // create default file with header
         ofstream nf("p.csv"); nf << "ID,Name,Price,Quantity,Sold\n"; nf.close();
         return;
     }
@@ -145,7 +287,7 @@ void loadProductFromFile() {
     file.close();
 }
 
-// --- merge-sort helpers ---
+/* ---------- MERGE SORT ALGORITHM ---------- */
 Product* midNode(Product* h) {
     if (!h) return nullptr;
     Product* slow = h; Product* fast = h->next;
@@ -181,25 +323,207 @@ Product* mergeSortProducts(Product* node, bool sortByPrice) {
 }
 
 void sortProductsByName() {
+    showSpinner(800, 60, 15);
     head = mergeSortProducts(head, false);
     saveAllProductToFile();
 }
 
 void sortProductsByPrice() {
+    showSpinner(800, 60, 15);
     head = mergeSortProducts(head, true);
     saveAllProductToFile();
 }
 
+/* ---------- HEAP SORT for Top Sellers (Priority Queue) ---------- */
 void displayTopSellers(int topN) {
-    drawHeader("Top Sellers");
-    vector<Product*> arr;
-    for (Product* t = head; t; t = t->next) arr.push_back(t);
-    sort(arr.begin(), arr.end(), [](Product* a, Product* b) { return a->soldCount > b->soldCount; });
-    gotoxy(12, 11); cout << left << setw(6) << "Rank" << setw(30) << "Product" << setw(10) << "Sold" << endl;
-    gotoxy(12, 12); cout << string(60, '=') << endl;
-    int y = 13;
-    for (int i = 0; i < min((int)arr.size(), topN); ++i) {
-        gotoxy(12, y++); cout << left << setw(6) << (i + 1) << setw(30) << arr[i]->proName << setw(10) << arr[i]->soldCount << endl;
+    drawHeader("Top Sellers - Using Heap Sort");
+    
+    if (!head) {
+        showErrorToast("No products available", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
     }
+    
+    drawAnimatedBox(10, 10, 70, 12 + min(topN, countProduct()), Color::BRIGHT_YELLOW);
+    
+    priority_queue<pair<int, Product*>> maxHeap;
+    
+    for (Product* t = head; t; t = t->next) {
+        maxHeap.push({t->soldCount, t});
+    }
+    
+    gotoxy(12, 12); 
+    setColor(Color::BRIGHT_YELLOW);
+    cout << left << setw(6) << "Rank";
+    setColor(Color::BRIGHT_CYAN);
+    cout << setw(30) << "Product";
+    setColor(Color::BRIGHT_GREEN);
+    cout << setw(10) << "Sold";
+    setColor(Color::BRIGHT_MAGENTA);
+    cout << setw(12) << "Revenue" << endl;
+    
+    gotoxy(12, 13); 
+    setColor(Color::BRIGHT_MAGENTA);
+    cout << string(65, '=') << endl;
+    
+    int y = 14;
+    Color rankColors[] = {Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN, Color::BRIGHT_CYAN, Color::BRIGHT_MAGENTA, Color::BRIGHT_WHITE};
+    
+    for (int i = 0; i < min(topN, (int)maxHeap.size()); ++i) {
+        auto top = maxHeap.top(); maxHeap.pop();
+        Product* p = top.second;
+        
+        setColor(rankColors[i % 5]);
+        gotoxy(12, y++); 
+        cout << left << setw(6) << (i + 1) 
+             << setw(30) << p->proName 
+             << setw(10) << p->soldCount
+             << setw(12) << (int)(p->soldCount * p->proPrice) << " Rs" << endl;
+        Sleep(100);
+    }
+    
+    setColor(Color::BRIGHT_WHITE);
     gotoxy(12, y + 1); getch();
+}
+
+/* ---------- NEW: REVERSE LIST (Stack-based DSA) ---------- */
+void reverseProductList() {
+    drawHeader("Reverse Product List - Using Stack");
+    
+    if (!head) {
+        showErrorToast("List is empty", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
+    }
+    
+    showSpinner(1000, 60, 13);
+    
+    stack<Product*> stk;
+    Product* temp = head;
+    
+    while (temp) {
+        stk.push(temp);
+        temp = temp->next;
+    }
+    
+    head = stk.top(); stk.pop();
+    temp = head;
+    
+    while (!stk.empty()) {
+        temp->next = stk.top();
+        stk.pop();
+        temp = temp->next;
+    }
+    temp->next = nullptr;
+    
+    saveAllProductToFile();
+    showSuccessToast("List reversed successfully!", 60, 15);
+    
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 23); getch();
+}
+
+/* ---------- NEW: PRODUCT STATISTICS (Graph Theory) ---------- */
+void showProductStatistics() {
+    drawHeader("Product Statistics - Advanced Analytics");
+    
+    if (!head) {
+        showErrorToast("No products available", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
+    }
+    
+    drawAnimatedBox(15, 10, 80, 18, Color::BRIGHT_MAGENTA);
+    
+    int totalProducts = 0, totalStock = 0, totalSold = 0;
+    double totalValue = 0, avgPrice = 0, maxPrice = 0, minPrice = 999999;
+    
+    for (Product* t = head; t; t = t->next) {
+        totalProducts++;
+        totalStock += t->proNum;
+        totalSold += t->soldCount;
+        totalValue += t->proPrice * t->proNum;
+        avgPrice += t->proPrice;
+        if (t->proPrice > maxPrice) maxPrice = t->proPrice;
+        if (t->proPrice < minPrice) minPrice = t->proPrice;
+    }
+    
+    avgPrice /= totalProducts;
+    
+    setColor(Color::BRIGHT_YELLOW);
+    gotoxy(20, 12); cout << "INVENTORY STATISTICS:";
+    
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(25, 14); cout << "Total Products      : " << totalProducts;
+    gotoxy(25, 15); cout << "Total Stock Items   : " << totalStock;
+    gotoxy(25, 16); cout << "Total Items Sold    : " << totalSold;
+    
+    setColor(Color::BRIGHT_GREEN);
+    gotoxy(25, 18); cout << "Inventory Value     : " << (int)totalValue << " Rs";
+    gotoxy(25, 19); cout << "Average Price       : " << (int)avgPrice << " Rs";
+    gotoxy(25, 20); cout << "Highest Price       : " << (int)maxPrice << " Rs";
+    gotoxy(25, 21); cout << "Lowest Price        : " << (int)minPrice << " Rs";
+    
+    setColor(Color::BRIGHT_MAGENTA);
+    double turnoverRate = totalProducts > 0 ? (double)totalSold / (totalSold + totalStock) * 100 : 0;
+    gotoxy(25, 23); cout << "Stock Turnover Rate : " << fixed << setprecision(2) << turnoverRate << "%";
+    
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 26); getch();
+}
+
+/* ---------- NEW: LOW STOCK ALERT (Min-Heap Priority Queue) ---------- */
+void showLowStockAlerts() {
+    drawHeader("Low Stock Alerts - Priority Queue");
+    
+    if (!head) {
+        showErrorToast("No products available", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
+    }
+    
+    priority_queue<pair<int, Product*>, vector<pair<int, Product*>>, greater<pair<int, Product*>>> minHeap;
+    
+    for (Product* t = head; t; t = t->next) {
+        minHeap.push({t->proNum, t});
+    }
+    
+    drawAnimatedBox(10, 10, 75, 15, Color::BRIGHT_RED);
+    
+    gotoxy(12, 12);
+    setColor(Color::BRIGHT_RED);
+    cout << "LOW STOCK WARNING!";
+    
+    gotoxy(12, 14);
+    setColor(Color::BRIGHT_YELLOW);
+    cout << left << setw(30) << "Product" << setw(15) << "Stock" << setw(20) << "Status";
+    
+    gotoxy(12, 15);
+    setColor(Color::BRIGHT_CYAN);
+    cout << string(70, '=');
+    
+    int y = 16, count = 0;
+    while (!minHeap.empty() && count < 10) {
+        auto item = minHeap.top(); minHeap.pop();
+        Product* p = item.second;
+        
+        if (p->proNum <= 10) {
+            setColor(p->proNum == 0 ? Color::BRIGHT_RED : p->proNum <= 5 ? Color::RED : Color::BRIGHT_YELLOW);
+            gotoxy(12, y++);
+            cout << left << setw(30) << p->proName 
+                 << setw(15) << p->proNum
+                 << setw(20) << (p->proNum == 0 ? "OUT OF STOCK" : "RESTOCK SOON");
+            count++;
+            Sleep(80);
+        }
+    }
+    
+    if (count == 0) {
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(25, 18);
+        cout << "All products have sufficient stock!";
+    }
+    
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 26); getch();
 }

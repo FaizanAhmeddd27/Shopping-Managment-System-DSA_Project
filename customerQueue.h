@@ -11,6 +11,7 @@ struct Customer {
     double cbill;
 };
 
+// Queue operations (FIFO - First In First Out)
 void enqueueCustomer(const Customer &c);
 void dequeueCustomer();
 int countCustomerQueue();

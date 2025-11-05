@@ -12,8 +12,21 @@ using namespace std; // Using standard namespace for common features
 
 static queue<Customer> q;
 
+/**
+ * @brief Get the current number of customers waiting in the in-memory queue.
+ *
+ * @return int The number of customers currently stored in the queue.
+ */
 int countCustomerQueue() { return (int)q.size(); }
 
+/**
+ * @brief Adds a customer to the in-memory queue and appends their record to "c.csv".
+ *
+ * Ensures the CSV file exists with a header ("Name,Phone,Bill") and writes the customer's
+ * name, phone, and bill (formatted with two decimal places) as a new line.
+ *
+ * @param c Customer record to enqueue and persist. Fields used: `cname`, `cphone`, `cbill`.
+ */
 void enqueueCustomer(const Customer &c) {
     q.push(c);
     ofstream f("c.csv", ios::app);
@@ -25,7 +38,22 @@ void enqueueCustomer(const Customer &c) {
     f.close();
 }
 
-/* ---- CASHIER CHECK-OUT with Enhanced UI (Speed/Clarity Improvements) ---- */
+/**
+ * @brief Process the next customer at the cash counter and record the sale.
+ *
+ * Displays an interactive checkout UI for the customer at the front of the in-memory queue,
+ * prompts the operator to select a payment method, records the sale to "sales_history.csv",
+ * persists the remaining queue to "c.csv", and shows a confirmation screen.
+ *
+ * If the queue is empty, displays an error notification and returns after a key press.
+ *
+ * Observable side effects:
+ * - Removes the front Customer from the global in-memory queue.
+ * - Appends a record (Name, Phone, Bill, PaymentMethod) to "sales_history.csv" (creates the file with a header if missing).
+ * - Calls saveAllCustomerToFile() to overwrite "c.csv" with the current queue state.
+ * - Renders console UI, accepts a single-character choice ('1','2','3') mapping to payment methods:
+ *   "Easypaisa/JazzCash/Nayapay", "Card", or "Cash", respectively.
+ */
 void dequeueCustomer() {
     drawHeader("Cash Counter - Customer Checkout");
 
@@ -100,7 +128,15 @@ void dequeueCustomer() {
     getch();
 }
 
-/* ---- Customer List with Enhanced Display (Speed Improvement) ---- */
+/**
+ * @brief Render an enhanced, FIFO-ordered display of the in-memory customer queue.
+ *
+ * If the queue is empty, shows an error toast and waits for a key press. Otherwise,
+ * draws a framed list with columns for serial (SL), customer name, phone number,
+ * and bill (formatted to two decimal places), applying alternating row styling
+ * and a paced row render. After listing all entries, displays the total number
+ * of waiting customers and waits for a key press before returning.
+ */
 void customerListDisplay() {
     drawHeader("Customer Queue - FIFO Order");
 
@@ -149,7 +185,14 @@ void customerListDisplay() {
     gotoxy(12, y + 3); getch();
 }
 
-/* ---- CSV Persistency (Added setprecision to Bill) ---- */
+/**
+ * @brief Persist the current in-memory customer queue to "c.csv".
+ *
+ * Overwrites "c.csv" with a header line and one CSV row per queued customer
+ * in FIFO order. Each row contains Name, Phone, and Bill (formatted with
+ * two decimal places). If the file cannot be opened, the function returns
+ * without modifying any file.
+ */
 void saveAllCustomerToFile() {
     ofstream f("c.csv");
     if (!f.is_open()) return;
@@ -162,6 +205,11 @@ void saveAllCustomerToFile() {
     f.close();
 }
 
+/**
+ * @brief Load customers from the local CSV file into the in-memory queue.
+ *
+ * @details Ensures "c.csv" exists (creates it with header if missing), clears the current in-memory queue, then reads each CSV record (skipping the header) and appends valid entries to the queue. Each record must contain Name, Phone, and Bill; malformed or unparsable lines are ignored.
+ */
 void loadCustomerFromFile() {
     ifstream f("c.csv");
     if (!f.is_open()) {
@@ -187,7 +235,16 @@ void loadCustomerFromFile() {
     f.close();
 }
 
-/* ---------- NEW: SALES ANALYTICS (Aggregation DSA) ---------- */
+/**
+ * @brief Displays an aggregated sales analytics dashboard.
+ *
+ * Reads "sales_history.csv" (expects a header row) and aggregates total sales,
+ * total revenue, average bill, and per-payment-method counts and revenue, then
+ * renders a console dashboard showing those metrics.
+ *
+ * If the sales history file is not found or cannot be opened, shows an error
+ * toast and returns without rendering the dashboard.
+ */
 
 void showSalesAnalytics() {
     drawHeader("Sales Analytics - Data Aggregation");
@@ -259,7 +316,17 @@ void showSalesAnalytics() {
     gotoxy(30, y + 2); getch();
 }
 
-/* ---------- NEW: PEAK HOUR ANALYSIS (Time-based Queue) ---------- */
+/**
+ * @brief Displays a peak-hour dashboard showing current queue load and pending revenue.
+ *
+ * Renders a header and a dynamic information box that reports the number of customers
+ * currently in the in-memory queue, the total pending bill amount (formatted with two
+ * decimal places), a traffic status label (IDLE, NORMAL, BUSY, PEAK HOUR) with color
+ * coding, and a recommendation to open an additional counter when the queue exceeds five.
+ *
+ * This function reads the global in-memory queue to compute metrics and interacts with
+ * the console UI (colored text, positioned output, and a blocking keypress before return).
+ */
 void showPeakHourAnalysis() {
     drawHeader("Peak Hour Analysis - Time Series");
 
@@ -313,7 +380,15 @@ void showPeakHourAnalysis() {
 
 
 
-/* ---------- NEW: CUSTOMER SEARCH (Linear Search with Details) ---------- */
+/**
+ * @brief Performs a case-insensitive linear search for a customer by name and displays detailed results.
+ *
+ * Searches the in-memory FIFO customer queue for the first entry whose name contains the provided
+ * search text (case-insensitive). If a match is found, displays the customer's position in queue,
+ * name, phone, bill amount, and an estimated wait time (position × 3 minutes). If the queue is
+ * empty or no match is found, displays an appropriate error message. The function presents results
+ * via the program's UI, shows success/error toasts, and waits for a key press before returning.
+ */
 void searchCustomerInQueue() {
     drawHeader("Search Customer - Linear Search Algorithm");
 
@@ -382,4 +457,3 @@ void searchCustomerInQueue() {
     setColor(Color::BRIGHT_WHITE);
     gotoxy(30, 24); getch();
 }
-

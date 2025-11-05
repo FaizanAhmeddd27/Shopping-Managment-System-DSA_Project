@@ -9,7 +9,18 @@
 #include <windows.h>
 using namespace std;
 
-/* ---------- ENHANCED COLOR PALETTE ---------- */
+/**
+ * Move the console cursor to the specified column and row.
+ * Coordinates use the console character grid with (0,0) at the top-left.
+ * @param x Column index (horizontal position), zero-based.
+ * @param y Row index (vertical position), zero-based.
+ */
+
+/**
+ * Set the console text foreground and background colors.
+ * @param fg Foreground color from the `Color` enum.
+ * @param bg Background color from the `Color` enum (default: `Color::BLACK`).
+ */
 enum class Color {
     BLACK = 0, BLUE = 1, GREEN = 2, CYAN = 3, RED = 4,
     MAGENTA = 5, YELLOW = 6, WHITE = 7, GRAY = 8,
@@ -27,11 +38,22 @@ inline void setColor(Color fg, Color bg = Color::BLACK) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (int)fg | ((int)bg << 4));
 }
 
+/**
+ * Maximizes the current process console window.
+ *
+ * If no console window exists, the function has no effect.
+ */
 inline void maximizeConsole() {
     HWND console = GetConsoleWindow();
     ShowWindow(console, SW_MAXIMIZE);
 }
 
+/**
+ * Hide the console cursor for the current standard output console.
+ *
+ * Sets the console cursor to an invisible state so subsequent console output
+ * does not display a blinking cursor.
+ */
 inline void hideCursor() {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO info;
@@ -40,6 +62,12 @@ inline void hideCursor() {
     SetConsoleCursorInfo(consoleHandle, &info);
 }
 
+/**
+ * Make the console cursor visible and set its size to 100.
+ *
+ * This updates the current process console's cursor to be shown and sets the cursor
+ * size to 100 (percent of character cell). No value is returned.
+ */
 inline void showCursor() {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO info;
@@ -105,7 +133,15 @@ inline void loadingBar(int duration = 1500) {
     setColor(Color::BRIGHT_WHITE);
 }
 
-/* ---------- FAST HEADER WITH GRADIENT ---------- */
+/**
+ * Draws a decorative, colored header bar across the console and centers the provided title within it.
+ *
+ * This clears the console, renders a multi-line header with color accents and a gradient-like border,
+ * places the `title` centered horizontally within the header area, and then positions the cursor
+ * below the header ready for subsequent output.
+ *
+ * @param title Title text to center and display within the header.
+ */
 inline void drawHeader(const string &title) {
     system("cls");
     

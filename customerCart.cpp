@@ -12,6 +12,13 @@ const int totalCart = 50;
 /* ----- HASH MAP for fast product lookup ----- */
 map<int, Product*> productCache;
 
+/**
+ * @brief Rebuilds the global productCache from the product linked list.
+ *
+ * Clears any existing entries in the global productCache and inserts a mapping
+ * from each product's `proId` to its `Product*` by traversing the linked list
+ * beginning at `head`.
+ */
 void buildProductCache() {
     productCache.clear();
     for (Product* t = head; t; t = t->next) {
@@ -19,7 +26,13 @@ void buildProductCache() {
     }
 }
 
-/* ----- Cart Allocation ----- */
+/**
+ * @brief Presents the cart-allocation UI and assigns a cart number if available.
+ *
+ * Determines the number of remaining carts from the current queue and the store's capacity,
+ * then displays an error message when no carts remain or shows the allocated cart number
+ * with a confirmation message when a cart is available. The function blocks until a key is pressed.
+ */
 void cCart() {
     drawHeader("Grab a Cart");
     
@@ -46,6 +59,12 @@ void cCart() {
     gotoxy(30, 23); getch();
 }
 
+/**
+ * @brief Visually displays the currently available shopping carts.
+ *
+ * Calculates the number of remaining carts, shows an error toast and returns if none are available,
+ * otherwise renders numbered cart indicators in a colored grid with a short animation and waits for a key press.
+ */
 void displayCart() {
     drawHeader("Display Carts");
     int totalCustomer = countCustomerQueue();
@@ -75,7 +94,16 @@ void displayCart() {
     gotoxy(30, 23); getch();
 }
 
-/* ----- KMP ALGORITHM for Product Search ----- */
+/**
+ * @brief Computes the longest proper-prefix which is also suffix (LPS) array for a pattern.
+ *
+ * Builds an LPS array where each entry at index `i` is the length of the longest proper prefix
+ * of `pattern[0..i]` that is also a suffix of `pattern[0..i]`.
+ *
+ * @param pattern The pattern string to analyze.
+ * @return std::vector<int> LPS array: for each index `i`, the length of the longest proper prefix
+ * that is also a suffix for the substring ending at `i`. A "proper" prefix excludes the whole substring.
+ */
 vector<int> computeLPS(const string& pattern) {
     int m = pattern.length();
     vector<int> lps(m, 0);
@@ -94,6 +122,13 @@ vector<int> computeLPS(const string& pattern) {
     return lps;
 }
 
+/**
+ * @brief Checks whether a pattern occurs inside a text using a case-insensitive substring search.
+ *
+ * @param text The text to search within.
+ * @param pattern The substring pattern to find.
+ * @return `true` if `pattern` is found in `text` (case-insensitive), `false` otherwise.
+ */
 bool kmpSearch(const string& text, const string& pattern) {
     string lowerText = text, lowerPattern = pattern;
     transform(lowerText.begin(), lowerText.end(), lowerText.begin(), ::tolower);
@@ -116,6 +151,11 @@ bool kmpSearch(const string& text, const string& pattern) {
     return false;
 }
 
+/**
+ * @brief Presents an interactive UI to search products by name or partial name and displays matching entries.
+ *
+ * Prompts the user for a search key, performs a case-insensitive substring search across all products, and prints a formatted table of matches (ID, name, price, quantity). Shows an informational toast when no matches are found or a success toast when the search completes, then waits for a key press before returning.
+ */
 void searchProductUI() {
     drawHeader("Search Product - KMP Algorithm");
     
@@ -164,7 +204,21 @@ void searchProductUI() {
     gotoxy(30, 23); getch();
 }
 
-/* ----- Receipt Writer ----- */
+/**
+ * @brief Writes a timestamped plain-text receipt for a customer's purchase to disk.
+ *
+ * The function creates a file named "receipt_YYYYMMDD_HHMMSS.txt" in the current working
+ * directory and writes customer information, a numbered list of purchased items with
+ * quantities, and summary lines for total, payable amount, and payment method.
+ *
+ * If the file cannot be opened for writing, the function returns without creating a receipt.
+ *
+ * @param custName Customer's name to appear on the receipt.
+ * @param items Vector of purchased items where each pair contains the product name and quantity.
+ * @param total Sum of item prices before discounts or adjustments.
+ * @param finalPay Final amount payable after discounts or adjustments.
+ * @param paymentMethod Human-readable payment method label to record on the receipt.
+ */
 static void writeReceipt(const string &custName, const vector<pair<string, int>> &items,
                          double total, double finalPay, const string &paymentMethod) {
     auto t = time(nullptr); auto tm = *localtime(&t);
@@ -185,7 +239,22 @@ static void writeReceipt(const string &custName, const vector<pair<string, int>>
     f.close();
 }
 
-/* ----- BUY PRODUCTS with Hash Map optimization ----- */
+/**
+ * @brief Interactive UI for creating a customer purchase, updating inventory, and processing payment.
+ *
+ * Presents a prompt-driven flow that lets a user select multiple products by ID and quantity,
+ * validates availability, updates product stock and sold counts, records purchased items,
+ * computes discounts based on the bill, enqueues the customer, persists product data, writes a timestamped receipt,
+ * and displays a payment confirmation summary.
+ *
+ * - Skips entries for invalid product IDs or insufficient stock; if no valid items are added the function returns without completing a purchase.
+ * - Applies a discount of 10% for bills greater than 1000, 5% for bills greater than 500, otherwise no discount.
+ * - Captures a payment method choice and includes it in the receipt and confirmation display.
+ *
+ * Side effects:
+ * - Mutates Product objects' `proNum` and `soldCount`.
+ * - Calls enqueueCustomer(), saveAllProductToFile(), and writeReceipt().
+ */
 void buyProductUI() {
     drawHeader("Buy Products - Shopping Cart");
     
@@ -334,7 +403,14 @@ void buyProductUI() {
     gotoxy(30, 24); getch();
 }
 
-/* ---------- NEW: PRICE FILTER (Binary Search Tree concept) ---------- */
+/**
+ * @brief Prompt for a price range and display all products whose price falls within it.
+ *
+ * Prompts the user to enter a minimum and maximum price, then lists all products with
+ * price >= minimum and <= maximum in a formatted table. If no products exist or no
+ * products match the range, an informational message is shown. The function uses the
+ * application's console UI and waits for a key press before returning.
+ */
 void filterByPriceRange() {
     drawHeader("Filter Products by Price - BST Concept");
     
@@ -396,6 +472,13 @@ void filterByPriceRange() {
 /* ---------- NEW: WISHLIST (Set/HashSet DSA) ---------- */
 set<int> wishlist;
 
+/**
+ * @brief Prompt for a product ID and add that product to the global wishlist if present.
+ *
+ * Prompts the user to enter a product ID, validates that products exist and the ID corresponds
+ * to an existing product, then inserts the ID into the global wishlist if it is not already present.
+ * Displays appropriate success, informational, or error messages and awaits a key press before returning.
+ */
 void addToWishlist() {
     drawHeader("Add to Wishlist - HashSet Implementation");
     
@@ -430,6 +513,14 @@ void addToWishlist() {
     gotoxy(30, 23); getch();
 }
 
+/**
+ * @brief Display the current wishlist of products in a formatted, colorized UI.
+ *
+ * If the global wishlist is empty, shows an informational toast and returns after a key press.
+ * Otherwise rebuilds the product cache, opens a bordered results box, prints a header row
+ * (ID, Product, Price) and then lists each wishlist product found in the cache with
+ * alternating colors and a short delay between lines. Ends by waiting for a key press.
+ */
 void viewWishlist() {
     drawHeader("My Wishlist - Set Data Structure");
     
@@ -472,7 +563,14 @@ void viewWishlist() {
     gotoxy(30, y + 2); getch();
 }
 
-/* ---------- NEW: PRODUCT RECOMMENDATIONS (Graph-based) ---------- */
+/**
+ * @brief Presents top product recommendations to the user.
+ *
+ * Displays up to five cheapest products that have available stock in a bordered, animated UI box.
+ * If no products exist, shows an error toast and returns. For each recommended product, prints
+ * the product name, price, and stock with color variations and a short delay between entries,
+ * then waits for a key press before returning.
+ */
 void showRecommendations() {
     drawHeader("Product Recommendations - Graph Algorithm");
     

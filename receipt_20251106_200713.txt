@@ -1,0 +1,12 @@
+=== Shopping Mall Receipt ===
+Customer: ALi
+Date: Thu Nov 06 20:07:13 2025
+No   Product                       Qty       Price
+      ------------------------------------------------------------
+1    Candy                         10        
+------------------------------------------------------------
+Total: 20
+Payable: 20
+Paid via: Easypaisa/JazzCash/Nayapay
+
+Thank you!

@@ -28,21 +28,6 @@ void CustomerMode();
 void ManagerMode();
 void cashierLogin();
 void managerLogin();
-
-
-/* ---- Forward declarations ---- */
-void loginOrSign();
-void saveNewUserToFile(Login *temp);
-void loadUsersFromFile();
-void exitConfirmation();
-void showCredits();
-void CashierMode();
-void CustomerMode();
-void ManagerMode();
-void cashierLogin();
-void managerLogin();
-
-/* Missing Function Declarations Added */
 void showSalesAnalytics();
 void showPeakHourAnalysis();
 void searchCustomerInQueue();
@@ -54,31 +39,65 @@ void reverseProductList();
 void showProductStatistics();
 void showLowStockAlerts();
 
-/* ---------- ASCII ART TITLE ---------- */
+/* ---------- ENHANCED ASCII ART TITLE ---------- */
 void printTitle() {
     system("cls");
+    
+    // Main title - SHOPPING (Bright Cyan - Light Aqua)
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(30, 6);  cout << " _____ _   _  ___  ____  ____  ___ _   _  ____";
-    gotoxy(30, 7);  cout << "/ ____| | | |/ _ \\|  _ \\|  _ \\|_ _| \\ | |/ ___|";
-    gotoxy(30, 8);  cout << "\\___ \\| |_| | | | | |_) | |_) || ||  \\| | |  _";
-    gotoxy(30, 9);  cout << " ___) |  _  | |_| |  __/|  __/ | || |\\  | |_| |";
-    gotoxy(30, 10); cout << "|____/|_| |_|\\___/|_|   |_|   |___|_| \\_|\\____|";
+    gotoxy(28, 4);  cout << " _____ _   _  ___  ____  ____  ___ _   _  ____";
+    gotoxy(28, 5);  cout << "/ ____| | | |/ _ \\|  _ \\|  _ \\|_ _| \\ | |/ ___|";
+    gotoxy(28, 6);  cout << "\\___ \\| |_| | | | | |_) | |_) || ||  \\| | |  _";
+    gotoxy(28, 7);  cout << " ___) |  _  | |_| |  __/|  __/ | || |\\  | |_| |";
+    gotoxy(28, 8);  cout << "|____/|_| |_|\\___/|_|   |_|   |___|_| \\_|\\____|";
     
+    // Subtitle - MALL SYSTEM (Bright Yellow - Light Gold)
     setColor(Color::BRIGHT_YELLOW);
-    gotoxy(25, 13); cout << "   __  __    _    _     _        ______   _______ _____ __  __";
-    gotoxy(25, 14); cout << "  |  \\/  |  / \\  | |   | |      / ___\\ \\ / / ____|_   _|  \\/  |";
-    gotoxy(25, 15); cout << "  | |\\/| | / _ \\ | |   | |      \\___ \\\\ V /\\___ \\ | | | |\\/| |";
-    gotoxy(25, 16); cout << "  | |  | |/ ___ \\| |___| |___    ___) |  |  ___) || | | |  | |";
-    gotoxy(25, 17); cout << "  |_|  |_/_/   \\_\\_____|_____| |____/ \\_/ |____/ |_| |_|  |_|";
+    gotoxy(20, 10); cout << "   __  __    _    _     _        ______   _______ _____ __  __";
+    gotoxy(20, 11); cout << "  |  \\/  |  / \\  | |   | |      / ___\\ \\ / / ____|_   _|  \\/  |";
+    gotoxy(20, 12); cout << "  | |\\/| | / _ \\ | |   | |      \\___ \\\\ V /\\___ \\ | | | |\\/| |";
+    gotoxy(20, 13); cout << "  | |  | |/ ___ \\| |___| |___    ___) |  |  ___) || | | |  | |";
+    gotoxy(20, 14); cout << "  |_|  |_/_/   \\_\\_____|_____| |____/ \\_/ |____/ |_| |_|  |_|";
     
+    // Project tagline (Bright Green - Light Lime)
     setColor(Color::BRIGHT_GREEN);
-    gotoxy(32, 20); cout << "D A T A   S T R U C T U R E   P R O J E C T   2 0 2 5";
-    setColor(Color::BRIGHT_WHITE);
+    gotoxy(25, 17); cout << "DATA STRUCTURES & ALGORITHMS PROJECT 2025";
     
-    // ADD THIS: 5 second delay
-    Sleep(5000);
+    // Top divider (Bright Cyan - Light)
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(15, 19); 
+    for(int i = 0; i < 90; i++) cout << "=";
+    
+    // Description (Bright White - Lightest)
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 21); cout << "Advanced Shopping Mall Management System";
+    
+    // Features (Bright Yellow)
+    setColor(Color::BRIGHT_YELLOW);
+    gotoxy(25, 23); cout << "Featuring: Linked Lists | Queues | Stacks | Trees | Graphs";
+    
+    // Algorithms (Bright Green)
+    setColor(Color::BRIGHT_GREEN);
+    gotoxy(28, 24); cout << "KMP Search | Merge Sort | Heap Sort | Hash Maps";
+    
+    // Bottom divider (Bright Magenta - Light Pink)
+    setColor(Color::BRIGHT_MAGENTA);
+    gotoxy(15, 26); 
+    for(int i = 0; i < 90; i++) cout << "=";
+    
+    // Loading text (Bright Cyan)
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(43, 28); cout << "Loading, please wait";
+    
+    // Loading animation dots (Bright Yellow)
+    setColor(Color::BRIGHT_YELLOW);
+    for (int i = 0; i < 3; i++) {
+        Sleep(400);
+        cout << " .";
+    }
+    
+    Sleep(3000);
 }
-
 /* ---------- Credits ---------- */
 void showCredits() {
     drawHeader("DEVELOPMENT TEAM");
@@ -205,7 +224,7 @@ void CashierMode() {
         else if (choice=='4') showSalesAnalytics();
         else if (choice=='5') showPeakHourAnalysis();
         else if (choice=='6') searchCustomerInQueue();
-        else if (choice=='0') {  return; }
+        else if (choice=='0') { return; }
         else if (choice==27) exitConfirmation();
     }
 }
@@ -217,13 +236,10 @@ void cashierLogin() {
     
     string username, password;
     
-    // FIX: Clear input buffer first
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    getline(cin, username);  // Changed from cin >> to getline
+    getline(cin, username);
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -250,8 +266,6 @@ void cashierLogin() {
         cashierLogin();
     }
 }
-
-
 
 /* ---- CUSTOMER MODE - 7 Features ---- */
 void CustomerMode() {
@@ -303,12 +317,12 @@ void CustomerMode() {
             else if (wChoice == '2') viewWishlist();
         }
         else if (choice=='7') showRecommendations();
-        else if (choice=='0') {  return; }
+        else if (choice=='0') { return; }
         else if (choice==27) exitConfirmation();
     }
 }
 
-/* ---- CUSTOMER LOGIN ---- */
+/* ---- CUSTOMER LOGIN - FIXED ---- */
 void customerLogin() {
     drawHeader("CUSTOMER LOGIN");
     
@@ -316,13 +330,10 @@ void customerLogin() {
     
     string username, password;
     
-    // FIX: Clear input buffer first
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    getline(cin, username);  // Changed from cin >> to getline
+    getline(cin, username);
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -355,8 +366,6 @@ void customerLogin() {
     loginOrSign();
 }
 
-
-
 /* ---- CUSTOMER SIGNUP ---- */
 void customerSignup() {
     drawHeader("SIGN UP");
@@ -368,7 +377,7 @@ void customerSignup() {
     setColor(Color::BRIGHT_CYAN);
     gotoxy(45, 15); cout << "Full Name : "; 
     setColor(Color::BRIGHT_WHITE);
-    cin.ignore(); getline(cin, newUser->lname);
+    getline(cin, newUser->lname);
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(45, 16); cout << "Phone     : "; 
@@ -393,6 +402,9 @@ void customerSignup() {
     setColor(Color::BRIGHT_GREEN);
     gotoxy(50, 21); cout << "Sign Up Successful!";
     Sleep(1000);
+    
+    // Clear input buffer before going to login
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     customerLogin();
 }
 
@@ -416,8 +428,14 @@ void loginOrSign() {
         setColor(Color::BRIGHT_WHITE);
         choice = getch();
         
-        if (choice==13) customerLogin();
-        else if (choice==43 || choice=='+') customerSignup();
+        if (choice==13) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            customerLogin();
+        }
+        else if (choice==43 || choice=='+') {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            customerSignup();
+        }
         else if (choice=='0') return;
         else if (choice==27) exitConfirmation();
     }
@@ -491,11 +509,11 @@ void ManagerMode() {
         setColor(Color::BRIGHT_GREEN);
         gotoxy(48, 20); cout << "9.  Search Product";
         setColor(Color::BRIGHT_MAGENTA);
-        gotoxy(48, 21); cout << "10. Reverse Product List";
+        gotoxy(48, 21); cout << "A.  Reverse Product List";
         setColor(Color::BRIGHT_CYAN);
-        gotoxy(48, 22); cout << "11. Product Statistics";
+        gotoxy(48, 22); cout << "B.  Product Statistics";
         setColor(Color::BRIGHT_YELLOW);
-        gotoxy(48, 23); cout << "12. Low Stock Alerts";
+        gotoxy(48, 23); cout << "C.  Low Stock Alerts";
         
         setColor(Color::BRIGHT_WHITE);
         gotoxy(48, 26); cout << "0.  Back to Main Menu";
@@ -518,14 +536,6 @@ void ManagerMode() {
         else if (choice=='c' || choice=='C') showLowStockAlerts();
         else if (choice=='0') { return; }
         else if (choice==27) exitConfirmation();
-        
-        // Extended keys for 10-12
-        if (choice=='1') {
-            char next = getch();
-            if (next=='0') reverseProductList();
-            else if (next=='1') showProductStatistics();
-            else if (next=='2') showLowStockAlerts();
-        }
     }
 }
 
@@ -536,13 +546,10 @@ void managerLogin() {
     
     string username, password;
     
-    // FIX: Clear input buffer first
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 17); cout << "Username : "; 
     setColor(Color::BRIGHT_WHITE);
-    getline(cin, username);  // Changed from cin >> to getline
+    getline(cin, username);
     
     setColor(Color::BRIGHT_CYAN);
     gotoxy(48, 19); cout << "Password : ";
@@ -569,11 +576,6 @@ void managerLogin() {
         managerLogin();
     }
 }
-
-
-
-
-
 
 /* ---- MAIN ---- */
 int main() {
@@ -613,13 +615,18 @@ int main() {
         
         choice = getch();
         
-        if (choice=='1') managerLogin();
+        if (choice=='1') {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            managerLogin();
+        }
         else if (choice=='2') loginOrSign();
-        else if (choice=='3') cashierLogin();
+        else if (choice=='3') {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cashierLogin();
+        }
         else if (choice==27) exitConfirmation();
         else {
             showErrorToast("Invalid choice! Try again...", 60, 28);
-            
         }
     }
 }

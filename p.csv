@@ -1,29 +1,30 @@
 ID,Name,Price,Quantity,Sold
-1011,,0,0,0
 0,,0,0,0
-1,seeb,12,12,0
-1,aam,1,1,0
-121,anaar,121,121,0
-193,,12,12,0
-6,Mutton,950,25,0
-28,Oil,890,20,0
-5,Beef,750,40,0
-56,Peanut butter,700,18,2
-7,Chicken,150,75,0
-1,anything,123,2,0
-16,Butter,120,60,0
-15,Tooth Brush,100,100,0
-11,Onions,89,8,0
-4,Milk Chocolate,85,120,0
-2,Mango,80,20,0
-9,Potato,70,25,0
-13,Ice-Cream,70,40,0
-8,Tomato,50,20,0
-1,Rice,45,92,8
-12,Ice-Bar,35,45,0
-11,Chips,25,120,0
-3,Banana,7,40,0
-14,Candy,2,500,0
+0,,0,0,0
+0,,0,0,0
 0,,1,0,1
+14,Candy,2,490,10
+3,Banana,7,40,0
+11,Chips,25,120,0
+12,Ice-Bar,35,45,0
+1,Rice,45,92,8
+8,Tomato,50,20,0
+13,Ice-Cream,70,40,0
+9,Potato,70,25,0
+2,Mango,80,20,0
+4,Milk Chocolate,85,120,0
+11,Onions,89,8,0
+15,Tooth Brush,100,100,0
+16,Butter,120,60,0
+1,anything,123,2,0
+7,Chicken,150,75,0
+56,Peanut butter,700,18,2
+5,Beef,750,40,0
+28,Oil,890,20,0
+6,Mutton,950,25,0
+193,,12,12,0
+121,anaar,121,121,0
+1,aam,1,1,0
+1,seeb,12,1,11
 0,,0,0,0
-0,,0,0,0
+1011,,0,0,0

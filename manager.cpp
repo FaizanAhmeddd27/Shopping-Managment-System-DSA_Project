@@ -334,7 +334,7 @@ void sortProductsByPrice() {
     saveAllProductToFile();
 }
 
-/* ---------- HEAP SORT for Top Sellers (Priority Queue) ---------- */
+/* ---------- HEAP SORT for Top Sellers with DYNAMIC BOX ---------- */
 void displayTopSellers(int topN) {
     drawHeader("Top Sellers - Using Heap Sort");
     
@@ -344,13 +344,17 @@ void displayTopSellers(int topN) {
         return;
     }
     
-    drawAnimatedBox(10, 10, 70, 12 + min(topN, countProduct()), Color::BRIGHT_YELLOW);
-    
     priority_queue<pair<int, Product*>> maxHeap;
     
     for (Product* t = head; t; t = t->next) {
         maxHeap.push({t->soldCount, t});
     }
+    
+    int actualCount = min(topN, (int)maxHeap.size());
+    
+    // DYNAMIC BOX HEIGHT
+    int boxHeight = 12 + actualCount;
+    drawAnimatedBox(10, 10, 70, boxHeight, Color::BRIGHT_YELLOW);
     
     gotoxy(12, 12); 
     setColor(Color::BRIGHT_YELLOW);
@@ -369,7 +373,7 @@ void displayTopSellers(int topN) {
     int y = 14;
     Color rankColors[] = {Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN, Color::BRIGHT_CYAN, Color::BRIGHT_MAGENTA, Color::BRIGHT_WHITE};
     
-    for (int i = 0; i < min(topN, (int)maxHeap.size()); ++i) {
+    for (int i = 0; i < actualCount; ++i) {
         auto top = maxHeap.top(); maxHeap.pop();
         Product* p = top.second;
         
@@ -386,7 +390,7 @@ void displayTopSellers(int topN) {
     gotoxy(12, y + 1); getch();
 }
 
-/* ---------- NEW: REVERSE LIST (Stack-based DSA) ---------- */
+/* ---------- REVERSE LIST (Stack-based DSA) ---------- */
 void reverseProductList() {
     drawHeader("Reverse Product List - Using Stack");
     
@@ -423,7 +427,7 @@ void reverseProductList() {
     gotoxy(30, 23); getch();
 }
 
-/* ---------- NEW: PRODUCT STATISTICS (Graph Theory) ---------- */
+/* ---------- PRODUCT STATISTICS (Graph Theory) ---------- */
 void showProductStatistics() {
     drawHeader("Product Statistics - Advanced Analytics");
     
@@ -472,7 +476,7 @@ void showProductStatistics() {
     gotoxy(30, 26); getch();
 }
 
-/* ---------- NEW: LOW STOCK ALERT (Min-Heap Priority Queue) ---------- */
+/* ---------- LOW STOCK ALERT with DYNAMIC BOX ---------- */
 void showLowStockAlerts() {
     drawHeader("Low Stock Alerts - Priority Queue");
     
@@ -484,11 +488,26 @@ void showLowStockAlerts() {
     
     priority_queue<pair<int, Product*>, vector<pair<int, Product*>>, greater<pair<int, Product*>>> minHeap;
     
+    int lowStockCount = 0;
     for (Product* t = head; t; t = t->next) {
         minHeap.push({t->proNum, t});
+        if (t->proNum <= 10) lowStockCount++;
     }
     
-    drawAnimatedBox(10, 10, 75, 15, Color::BRIGHT_RED);
+    if (lowStockCount == 0) {
+        drawAnimatedBox(10, 14, 75, 8, Color::BRIGHT_GREEN);
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(25, 18);
+        cout << "All products have sufficient stock!";
+        setColor(Color::BRIGHT_WHITE);
+        gotoxy(30, 26); getch();
+        return;
+    }
+    
+    // DYNAMIC BOX HEIGHT
+    int displayCount = min(lowStockCount, 10);
+    int boxHeight = 15 + displayCount;
+    drawAnimatedBox(10, 10, 75, boxHeight, Color::BRIGHT_RED);
     
     gotoxy(12, 12);
     setColor(Color::BRIGHT_RED);
@@ -518,12 +537,12 @@ void showLowStockAlerts() {
         }
     }
     
-    if (count == 0) {
-        setColor(Color::BRIGHT_GREEN);
-        gotoxy(25, 18);
-        cout << "All products have sufficient stock!";
+    if (lowStockCount > 10) {
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(12, y);
+        cout << "... and " << (lowStockCount - 10) << " more low stock items";
     }
     
     setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, 26); getch();
+    gotoxy(30, y + 3); getch();
 }

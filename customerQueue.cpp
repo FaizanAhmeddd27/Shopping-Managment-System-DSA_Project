@@ -25,7 +25,6 @@ void enqueueCustomer(const Customer &c) {
     f.close();
 }
 
-/* ---- CASHIER CHECK-OUT with Enhanced UI (Speed/Clarity Improvements) ---- */
 void dequeueCustomer() {
     drawHeader("Cash Counter - Customer Checkout");
 
@@ -43,11 +42,11 @@ void dequeueCustomer() {
     gotoxy(30, 13);  cout << "Customer Details:";
 
     setColor(Color::BRIGHT_YELLOW);
-    gotoxy(30, 15);  cout << "Name    : " << top.cname;
-    gotoxy(30, 16);  cout << "Phone   : " << top.cphone;
+    gotoxy(30, 15);  cout << "Name     : " << top.cname;
+    gotoxy(30, 16);  cout << "Phone    : " << top.cphone;
 
     setColor(Color::BRIGHT_GREEN);
-    gotoxy(30, 17);  cout << "Bill    : " << fixed << setprecision(2) << top.cbill << " Rs";
+    gotoxy(30, 17);  cout << "Bill     : " << fixed << setprecision(2) << top.cbill << " Rs";
 
     setColor(Color::BRIGHT_MAGENTA);
     gotoxy(30, 19); cout << "Select payment method (Press 1, 2, or 3):";
@@ -68,7 +67,7 @@ void dequeueCustomer() {
     else if (ch == '2') method = "Card";
     else if (ch == '3') method = "Cash";
 
-    showSpinner(500, 50, 26); // Reduced spinner time
+    showSpinner(500, 50, 26);
 
     ofstream salesFile("sales_history.csv", ios::app);
     if (!salesFile.is_open()) {
@@ -82,7 +81,7 @@ void dequeueCustomer() {
 
     saveAllCustomerToFile();
 
-    system("cls"); // Clear screen for confirmation
+    system("cls");
     drawHeader("Payment Successful");
     drawAnimatedBox(30, 13, 60, 10, Color::BRIGHT_GREEN);
 
@@ -97,6 +96,85 @@ void dequeueCustomer() {
 
     setColor(Color::BRIGHT_WHITE);
     gotoxy(40, 26); cout << "Press any key to continue...";
+    getch();
+}
+
+/* ---------- FIXED: CUSTOMER SEARCH (Now works properly!) ---------- */
+void searchCustomerInQueue() {
+    drawHeader("Search Customer - Linear Search Algorithm");
+
+    if (q.empty()) {
+        showErrorToast("No customers in queue", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
+    }
+
+    string searchName;
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(20, 12); cout << "Enter customer name to search: ";
+    setColor(Color::BRIGHT_WHITE);
+    cin.ignore();
+    getline(cin, searchName);
+
+    if (searchName.empty()) {
+        showErrorToast("Please enter a name", 60, 14);
+        gotoxy(30, 23); getch();
+        return;
+    }
+
+    showSpinner(300, 50, 13);
+
+    queue<Customer> temp = q;
+    bool found = false;
+    int position = 0, currentPos = 1;
+
+    system("cls");
+    drawHeader("Search Customer - Results");
+
+    while (!temp.empty()) {
+        Customer c = temp.front(); temp.pop();
+
+        // Convert both to lowercase for case-insensitive search
+        string lowerName = c.cname, lowerSearch = searchName;
+        transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+        transform(lowerSearch.begin(), lowerSearch.end(), lowerSearch.begin(), ::tolower);
+
+        if (lowerName.find(lowerSearch) != string::npos) {
+            position = currentPos;
+            found = true;
+
+            drawAnimatedBox(15, 10, 75, 15, Color::BRIGHT_GREEN);
+
+            setColor(Color::BRIGHT_YELLOW);
+            gotoxy(20, 12); cout << "CUSTOMER FOUND!";
+
+            setColor(Color::BRIGHT_CYAN);
+            gotoxy(20, 14); cout << "Position in Queue : " << position;
+            gotoxy(20, 15); cout << "Name              : " << c.cname;
+            gotoxy(20, 16); cout << "Phone             : " << c.cphone;
+
+            setColor(Color::BRIGHT_GREEN);
+            gotoxy(20, 17); cout << "Bill Amount       : " << fixed << setprecision(2) << c.cbill << " Rs";
+
+            int estimatedWaitTime = position * 3;
+            setColor(Color::BRIGHT_MAGENTA);
+            gotoxy(20, 19); cout << "Estimated Wait    : ~" << estimatedWaitTime << " minutes";
+
+            showSuccessToast("Found: " + c.cname, 60, 21);
+            break;
+        }
+        currentPos++;
+    }
+
+    if (!found) {
+        setColor(Color::BRIGHT_RED);
+        gotoxy(28, 14); cout << "Customer '" << searchName << "' not found in queue";
+        showErrorToast("Customer not found", 60, 16);
+    }
+
+    setColor(Color::BRIGHT_WHITE);
+    gotoxy(30, 24); 
+    cout << "Press any key to continue...";
     getch();
 }
 
@@ -312,74 +390,4 @@ void showPeakHourAnalysis() {
 }
 
 
-
-/* ---------- NEW: CUSTOMER SEARCH (Linear Search with Details) ---------- */
-void searchCustomerInQueue() {
-    drawHeader("Search Customer - Linear Search Algorithm");
-
-    if (q.empty()) {
-        showErrorToast("No customers in queue", 60, 14);
-        gotoxy(30, 23); getch();
-        return;
-    }
-
-    string searchName;
-    setColor(Color::BRIGHT_CYAN);
-    gotoxy(20, 12); cout << "Enter customer name to search: ";
-    setColor(Color::BRIGHT_WHITE);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    getline(cin, searchName);
-
-    showSpinner(300, 50, 13); // Reduced spinner time
-
-    queue<Customer> temp = q;
-    bool found = false;
-    int position = 0, currentPos = 1;
-
-    // Clear screen before showing results
-    system("cls");
-    drawHeader("Search Customer - Results");
-    
-    drawAnimatedBox(15, 10, 75, 15, Color::BRIGHT_GREEN); // Larger, fixed box for details
-
-    while (!temp.empty()) {
-        Customer c = temp.front(); temp.pop();
-
-        string lowerName = c.cname, lowerSearch = searchName;
-        transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
-        transform(lowerSearch.begin(), lowerSearch.end(), lowerSearch.begin(), ::tolower);
-
-        if (lowerName.find(lowerSearch) != string::npos) {
-            position = currentPos; // Record the position of the first match
-            found = true;
-
-            // Display the details only for the first match for simplicity
-            setColor(Color::BRIGHT_YELLOW);
-            gotoxy(20, 12); cout << "CUSTOMER FOUND!";
-
-            setColor(Color::BRIGHT_CYAN);
-            gotoxy(20, 14); cout << "Position in Queue : " << position;
-            gotoxy(20, 15); cout << "Name              : " << c.cname;
-            gotoxy(20, 16); cout << "Phone             : " << c.cphone;
-
-            setColor(Color::BRIGHT_GREEN);
-            gotoxy(20, 17); cout << "Bill Amount       : " << fixed << setprecision(2) << c.cbill << " Rs";
-
-            int estimatedWaitTime = position * 3;
-            setColor(Color::BRIGHT_MAGENTA);
-            gotoxy(20, 19); cout << "Estimated Wait    : ~" << estimatedWaitTime << " minutes";
-            
-            showSuccessToast("Found: " + c.cname, 60, 21);
-            break; // Stop after finding the first match
-        }
-        currentPos++;
-    }
-
-    if (!found) {
-        showErrorToast("Customer not found in queue", 60, 12);
-    }
-
-    setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, 24); getch();
-}
 

@@ -346,37 +346,39 @@ void filterByPriceRange() {
     
     double minPrice, maxPrice;
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(20, 11); cout << "Enter minimum price: ";
+    gotoxy(20, 11); cout << "Enter minimum price (Rs): ";
     setColor(Color::BRIGHT_WHITE);
     cin >> minPrice;
     
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(20, 12); cout << "Enter maximum price: ";
+    gotoxy(20, 12); cout << "Enter maximum price (Rs): ";
     setColor(Color::BRIGHT_WHITE);
     cin >> maxPrice;
     
     showSpinner(600, 50, 13);
     
-    drawAnimatedBox(10, 14, 80, 12, Color::BRIGHT_GREEN);
-    
-    gotoxy(12, 16);
+    // Header section
     setColor(Color::BRIGHT_YELLOW);
-    cout << left << setw(12) << "ID" << setw(30) << "Product" << setw(12) << "Price" << setw(10) << "Stock";
+    gotoxy(10, 15);
+    cout << left << setw(12) << "ID" << setw(35) << "Product" << setw(15) << "Price (Rs)" << setw(10) << "Stock";
     
-    gotoxy(12, 17);
-    setColor(Color::BRIGHT_CYAN);
-    cout << string(70, '=');
+    gotoxy(10, 16);
+    setColor(Color::BRIGHT_MAGENTA);
+    cout << string(72, '=');
     
-    int y = 18, count = 0;
+    int y = 17, count = 0;
     Color rowColors[] = {Color::BRIGHT_WHITE, Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW};
     
+    // Display filtered products
     for (Product* t = head; t; t = t->next) {
         if (t->proPrice >= minPrice && t->proPrice <= maxPrice) {
+            if (y > 24) break; // Prevent overflow beyond screen
+            
             setColor(rowColors[count % 4]);
-            gotoxy(12, y++);
+            gotoxy(10, y++);
             cout << left << setw(12) << t->proId 
-                 << setw(30) << t->proName 
-                 << setw(12) << t->proPrice 
+                 << setw(35) << t->proName 
+                 << setw(15) << fixed << setprecision(2) << t->proPrice 
                  << setw(10) << t->proNum;
             count++;
             Sleep(50);
@@ -385,14 +387,20 @@ void filterByPriceRange() {
     
     if (count == 0) {
         setColor(Color::BRIGHT_RED);
-        gotoxy(25, 20);
-        cout << "No products found in this price range";
+        gotoxy(28, 20);
+        cout << "X No products found in this price range";
+    } else {
+        setColor(Color::BRIGHT_GREEN);
+        gotoxy(10, y + 1);
+        cout << "Found " << count << " product(s) in range Rs " << fixed << setprecision(2) 
+             << minPrice << " - Rs " << maxPrice;
     }
     
     setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, 26); getch();
+    gotoxy(28, 27); 
+    cout << "Press any key to continue...";
+    getch();
 }
-
 /* ---------- NEW: WISHLIST (Set/HashSet DSA) ---------- */
 set<int> wishlist;
 

@@ -1,0 +1,12 @@
+=== Shopping Mall Receipt ===
+Customer: Babar
+Date: Sat Nov 08 13:51:34 2025
+No   Product                       Qty       Price
+      ------------------------------------------------------------
+1    Onions                        8         
+------------------------------------------------------------
+Total: 712
+Payable: 676.4
+Paid via: Card
+
+Thank you!

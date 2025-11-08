@@ -4,7 +4,7 @@ ID,Name,Price,Quantity,Sold
 0,,0,0,0
 0,,1,0,1
 14,Candy,2,490,10
-3,Banana,7,40,0
+3,Banana,7,20,20
 11,Chips,25,120,0
 12,Ice-Bar,35,45,0
 1,Rice,45,92,8
@@ -13,7 +13,7 @@ ID,Name,Price,Quantity,Sold
 9,Potato,70,25,0
 2,Mango,80,20,0
 4,Milk Chocolate,85,120,0
-11,Onions,89,8,0
+11,Onions,89,0,8
 15,Tooth Brush,100,100,0
 16,Butter,120,60,0
 1,anything,123,2,0

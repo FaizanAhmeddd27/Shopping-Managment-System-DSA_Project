@@ -43,60 +43,71 @@ void showLowStockAlerts();
 void printTitle() {
     system("cls");
     
-    // Main title - SHOPPING (Bright Cyan - Light Aqua)
+    // Main title - SHOPPING (Simple Cyan)
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(28, 4);  cout << " _____ _   _  ___  ____  ____  ___ _   _  ____";
-    gotoxy(28, 5);  cout << "/ ____| | | |/ _ \\|  _ \\|  _ \\|_ _| \\ | |/ ___|";
-    gotoxy(28, 6);  cout << "\\___ \\| |_| | | | | |_) | |_) || ||  \\| | |  _";
-    gotoxy(28, 7);  cout << " ___) |  _  | |_| |  __/|  __/ | || |\\  | |_| |";
-    gotoxy(28, 8);  cout << "|____/|_| |_|\\___/|_|   |_|   |___|_| \\_|\\____|";
+    gotoxy(32, 4);  cout << "  _____ _    _  ____  _____  _____ _____ _   _  _____ ";
+    gotoxy(32, 5);  cout << " / ____| |  | |/ __ \\|  __ \\|  __ \\_   _| \\ | |/ ____|";
+    gotoxy(32, 6);  cout << "| (___ | |__| | |  | | |__) | |__) || | |  \\| | |  __ ";
+    gotoxy(32, 7);  cout << " \\___ \\|  __  | |  | |  ___/|  ___/ | | | . ` | | |_ |";
+    gotoxy(32, 8);  cout << " ____) | |  | | |__| | |    | |    _| |_| |\\  | |__| |";
+    gotoxy(32, 9);  cout << "|_____/|_|  |_|\\____/|_|    |_|   |_____|_| \\_|\\_____|";
     
-    // Subtitle - MALL SYSTEM (Bright Yellow - Light Gold)
+    // Subtitle - MALL SYSTEM (Yellow)
     setColor(Color::BRIGHT_YELLOW);
-    gotoxy(20, 10); cout << "   __  __    _    _     _        ______   _______ _____ __  __";
-    gotoxy(20, 11); cout << "  |  \\/  |  / \\  | |   | |      / ___\\ \\ / / ____|_   _|  \\/  |";
-    gotoxy(20, 12); cout << "  | |\\/| | / _ \\ | |   | |      \\___ \\\\ V /\\___ \\ | | | |\\/| |";
-    gotoxy(20, 13); cout << "  | |  | |/ ___ \\| |___| |___    ___) |  |  ___) || | | |  | |";
-    gotoxy(20, 14); cout << "  |_|  |_/_/   \\_\\_____|_____| |____/ \\_/ |____/ |_| |_|  |_|";
+    gotoxy(24, 11); cout << "  __  __          _      _        _______     _______ _______ ______ __  __ ";
+    gotoxy(24, 12); cout << " |  \\/  |   /\\   | |    | |      / ____\\ \\   / / ____|__   __|  ____|  \\/  |";
+    gotoxy(24, 13); cout << " | \\  / |  /  \\  | |    | |     | (___  \\ \\_/ / (___    | |  | |__  | \\  / |";
+    gotoxy(24, 14); cout << " | |\\/| | / /\\ \\ | |    | |      \\___ \\  \\   / \\___ \\   | |  |  __| | |\\/| |";
+    gotoxy(24, 15); cout << " | |  | |/ ____ \\| |____| |____  ____) |  | |  ____) |  | |  | |____| |  | |";
+    gotoxy(24, 16); cout << " |_|  |_/_/    \\_\\______|______||_____/   |_| |_____/   |_|  |______|_|  |_|";
     
-    // Project tagline (Bright Green - Light Lime)
-    setColor(Color::BRIGHT_GREEN);
-    gotoxy(25, 17); cout << "DATA STRUCTURES & ALGORITHMS PROJECT 2025";
-    
-    // Top divider (Bright Cyan - Light)
+    // Simple divider line
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(15, 19); 
+    gotoxy(20, 18);
     for(int i = 0; i < 90; i++) cout << "=";
     
-    // Description (Bright White - Lightest)
+    // Project tagline
+    setColor(Color::BRIGHT_GREEN);
+    gotoxy(30, 20); cout << "DATA STRUCTURES & ALGORITHMS PROJECT 2025";
+    
+    // Box top
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(20, 22);
+    cout << "+";
+    for(int i = 0; i < 88; i++) cout << "-";
+    cout << "+";
+    
+    // Description
     setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, 21); cout << "Advanced Shopping Mall Management System";
+    gotoxy(35, 24); cout << "Advanced Shopping Mall Management System";
     
-    // Features (Bright Yellow)
+    // Features
     setColor(Color::BRIGHT_YELLOW);
-    gotoxy(25, 23); cout << "Featuring: Linked Lists | Queues | Stacks | Trees | Graphs";
+    gotoxy(26, 26); cout << "Features: Linked Lists | Queues | Stacks | Trees | Graphs";
     
-    // Algorithms (Bright Green)
+    // Algorithms
     setColor(Color::BRIGHT_GREEN);
-    gotoxy(28, 24); cout << "KMP Search | Merge Sort | Heap Sort | Hash Maps";
+    gotoxy(29, 27); cout << "Algorithms: KMP Search | Merge Sort | Heap Sort";
     
-    // Bottom divider (Bright Magenta - Light Pink)
-    setColor(Color::BRIGHT_MAGENTA);
-    gotoxy(15, 26); 
-    for(int i = 0; i < 90; i++) cout << "=";
-    
-    // Loading text (Bright Cyan)
+    // Box bottom
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(43, 28); cout << "Loading, please wait";
+    gotoxy(20, 29);
+    cout << "+";
+    for(int i = 0; i < 88; i++) cout << "-";
+    cout << "+";
     
-    // Loading animation dots (Bright Yellow)
+    // Loading text
+    setColor(Color::BRIGHT_CYAN);
+    gotoxy(47, 31); cout << "Loading, please wait";
+    
+    // Loading dots
     setColor(Color::BRIGHT_YELLOW);
     for (int i = 0; i < 3; i++) {
         Sleep(400);
         cout << " .";
     }
     
-    Sleep(3000);
+    Sleep(2000);
 }
 /* ---------- Credits ---------- */
 void showCredits() {

@@ -6,6 +6,12 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+void saveWishlistToFile();
+void loadWishlistFromFile();
+void addToWishlist();
+void viewWishlist();
+
 void cCart();
 void displayCart();
 void searchProductUI();  // Uses KMP Algorithm for pattern matching

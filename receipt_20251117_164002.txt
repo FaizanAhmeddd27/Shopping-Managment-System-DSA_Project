@@ -1,0 +1,12 @@
+=== Shopping Mall Receipt ===
+Customer: Abbas
+Date: Mon Nov 17 16:40:02 2025
+No   Product                       Qty       Price
+      ------------------------------------------------------------
+1    Tooth Brush                   19        
+------------------------------------------------------------
+Total: 1900
+Payable: 1710
+Paid via: Easypaisa/JazzCash/Nayapay
+
+Thank you!

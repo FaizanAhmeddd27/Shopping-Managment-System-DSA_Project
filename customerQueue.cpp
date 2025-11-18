@@ -99,132 +99,98 @@ void dequeueCustomer() {
     getch();
 }
 
-/* ---------- FIXED: CUSTOMER SEARCH (Now works properly!) ---------- */
-void searchCustomerInQueue() {
-    drawHeader("Search Customer - Linear Search Algorithm");
 
-    if (q.empty()) {
-        showErrorToast("No customers in queue", 60, 14);
-        gotoxy(30, 23); getch();
-        return;
-    }
-
-    string searchName;
-    setColor(Color::BRIGHT_CYAN);
-    gotoxy(20, 12); cout << "Enter customer name to search: ";
-    setColor(Color::BRIGHT_WHITE);
-    cin.ignore();
-    getline(cin, searchName);
-
-    if (searchName.empty()) {
-        showErrorToast("Please enter a name", 60, 14);
-        gotoxy(30, 23); getch();
-        return;
-    }
-
-    showSpinner(300, 50, 13);
-
-    queue<Customer> temp = q;
-    bool found = false;
-    int position = 0, currentPos = 1;
-
-    system("cls");
-    drawHeader("Search Customer - Results");
-
-    while (!temp.empty()) {
-        Customer c = temp.front(); temp.pop();
-
-        // Convert both to lowercase for case-insensitive search
-        string lowerName = c.cname, lowerSearch = searchName;
-        transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
-        transform(lowerSearch.begin(), lowerSearch.end(), lowerSearch.begin(), ::tolower);
-
-        if (lowerName.find(lowerSearch) != string::npos) {
-            position = currentPos;
-            found = true;
-
-            drawAnimatedBox(15, 10, 75, 15, Color::BRIGHT_GREEN);
-
-            setColor(Color::BRIGHT_YELLOW);
-            gotoxy(20, 12); cout << "CUSTOMER FOUND!";
-
-            setColor(Color::BRIGHT_CYAN);
-            gotoxy(20, 14); cout << "Position in Queue : " << position;
-            gotoxy(20, 15); cout << "Name              : " << c.cname;
-            gotoxy(20, 16); cout << "Phone             : " << c.cphone;
-
-            setColor(Color::BRIGHT_GREEN);
-            gotoxy(20, 17); cout << "Bill Amount       : " << fixed << setprecision(2) << c.cbill << " Rs";
-
-            int estimatedWaitTime = position * 3;
-            setColor(Color::BRIGHT_MAGENTA);
-            gotoxy(20, 19); cout << "Estimated Wait    : ~" << estimatedWaitTime << " minutes";
-
-            showSuccessToast("Found: " + c.cname, 60, 21);
-            break;
-        }
-        currentPos++;
-    }
-
-    if (!found) {
-        setColor(Color::BRIGHT_RED);
-        gotoxy(28, 14); cout << "Customer '" << searchName << "' not found in queue";
-        showErrorToast("Customer not found", 60, 16);
-    }
-
-    setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, 24); 
-    cout << "Press any key to continue...";
-    getch();
-}
 
 /* ---- Customer List with Enhanced Display (Speed Improvement) ---- */
 void customerListDisplay() {
-    drawHeader("Customer Queue - FIFO Order");
+  drawHeader("Complete Customer History");
 
-    if (q.empty()) {
-        showErrorToast("No Customer in Queue", 60, 12);
+    vector<Customer> allCustomers;
+    double totalRevenue = 0;
+    int completed = 0, waiting = 0;
+
+    // 1. Current Queue (Waiting Customers)
+    queue<Customer> temp = q;
+    while (!temp.empty()) {
+        Customer c = temp.front(); temp.pop();
+        allCustomers.push_back(c);
+        totalRevenue += c.cbill;
+        waiting++;
+    }
+
+    // 2. Completed Sales (from sales_history.csv)
+    ifstream sales("sales_history.csv");
+    if (sales.is_open()) {
+        string line;
+        bool header = true;
+        while (getline(sales, line)) {
+            if (header) { header = false; continue; }
+            if (line.empty()) continue;
+            istringstream ss(line);
+            string name, phone, billStr, method;
+            if (getline(ss, name, ',') && getline(ss, phone, ',') && getline(ss, billStr, ',') && getline(ss, method, ',')) {
+                try {
+                    Customer c{name, phone, stod(billStr)};
+                    allCustomers.push_back(c);
+                    totalRevenue += c.cbill;
+                    completed++;
+                } catch(...) {}
+            }
+        }
+        sales.close();
+    }
+
+    if (allCustomers.empty()) {
+        showErrorToast("No customer records found", 60, 14);
         gotoxy(30, 23); getch();
         return;
     }
 
-    drawAnimatedBox(10, 10, 85, 5 + q.size(), Color::BRIGHT_CYAN);
+    // Dynamic Box
+    int rows = min(15, (int)allCustomers.size());
+    drawAnimatedBox(8, 8, 100, 8 + rows + 6, Color::BRIGHT_CYAN);
 
-    gotoxy(12, 11);
+    gotoxy(15, 10);
     setColor(Color::BRIGHT_YELLOW);
-    cout << left << setw(5) << "SL";
-    setColor(Color::BRIGHT_CYAN);
-    cout << setw(30) << "Customer Name";
-    setColor(Color::BRIGHT_GREEN);
-    cout << setw(20) << "Phone Number";
-    setColor(Color::BRIGHT_MAGENTA);
-    cout << setw(15) << "Bill (Rs)"; // Removed endl
+    cout << "TOTAL CUSTOMERS: " << allCustomers.size() 
+         << "  |  WAITING: " << waiting << "  |  COMPLETED: " << completed 
+         << "  |  TOTAL REVENUE: " << fixed << setprecision(0) << totalRevenue << " Rs";
 
-    gotoxy(12, 12);
-    setColor(Color::BRIGHT_WHITE);
-    cout << string(75, '='); // Removed endl
+    gotoxy(10, 12);
+    setColor(Color::BRIGHT_YELLOW); cout << left << setw(5)  << "No";
+    setColor(Color::BRIGHT_CYAN);   cout << setw(25) << "Name";
+    setColor(Color::BRIGHT_GREEN);  cout << setw(18) << "Phone";
+    setColor(Color::BRIGHT_MAGENTA);cout << setw(15) << "Bill (Rs)";
+    setColor(Color::BRIGHT_WHITE);  cout << setw(12) << "Status";
 
-    queue<Customer> temp = q;
-    int i = 1, y = 13;
-    Color rowColors[] = {Color::BRIGHT_WHITE, Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW};
+    gotoxy(10, 13); setColor(Color::BRIGHT_CYAN);
+    cout << string(95, char(196));
 
-    while (!temp.empty()) {
-        Customer c = temp.front(); temp.pop();
-        setColor(rowColors[i % 4]);
-        gotoxy(12, y++);
-        cout << left << setw(5) << i++
-             << setw(30) << c.cname
-             << setw(20) << c.cphone
-             << setw(15) << fixed << setprecision(2) << c.cbill; // Removed endl
-        Sleep(20); // Reduced sleep for faster display
+    int y = 14;
+    for (int i = 0; i < allCustomers.size() && y < 8 + rows + 3; i++) {
+        auto& c = allCustomers[i];
+        bool isWaiting = (i < waiting);
+
+        setColor(isWaiting ? Color::BRIGHT_YELLOW : Color::BRIGHT_WHITE);
+        gotoxy(10, y++);
+        cout << left << setw(5)  << (i+1)
+             << setw(25) << c.cname
+             << setw(18) << c.cphone
+             << setw(15) << fixed << setprecision(0) << c.cbill;
+
+        setColor(isWaiting ? Color::BRIGHT_RED : Color::BRIGHT_GREEN);
+        cout << (isWaiting ? "WAITING" : "PAID");
+        Sleep(30);
     }
 
-    setColor(Color::BRIGHT_GREEN);
-    gotoxy(12, y + 1);
-    cout << "Total Customers Waiting: " << q.size();
+    if (allCustomers.size() > rows) {
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(20, y+1); cout << "... and " << (allCustomers.size() - rows) << " more customers";
+    }
 
     setColor(Color::BRIGHT_WHITE);
-    gotoxy(12, y + 3); getch();
+    gotoxy(30, y + 4); cout << "Press any key...";
+    getch();
 }
 
 /* ---- CSV Persistency (Added setprecision to Bill) ---- */

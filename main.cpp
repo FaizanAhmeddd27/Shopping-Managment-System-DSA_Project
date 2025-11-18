@@ -30,7 +30,6 @@ void cashierLogin();
 void managerLogin();
 void showSalesAnalytics();
 void showPeakHourAnalysis();
-void searchCustomerInQueue();
 void filterByPriceRange();
 void addToWishlist();
 void viewWishlist();
@@ -39,76 +38,98 @@ void reverseProductList();
 void showProductStatistics();
 void showLowStockAlerts();
 
+
 /* ---------- ENHANCED ASCII ART TITLE ---------- */
 void printTitle() {
     system("cls");
-    
-    // Main title - SHOPPING (Simple Cyan)
-    setColor(Color::BRIGHT_CYAN);
-    gotoxy(32, 4);  cout << "  _____ _    _  ____  _____  _____ _____ _   _  _____ ";
-    gotoxy(32, 5);  cout << " / ____| |  | |/ __ \\|  __ \\|  __ \\_   _| \\ | |/ ____|";
-    gotoxy(32, 6);  cout << "| (___ | |__| | |  | | |__) | |__) || | |  \\| | |  __ ";
-    gotoxy(32, 7);  cout << " \\___ \\|  __  | |  | |  ___/|  ___/ | | | . ` | | |_ |";
-    gotoxy(32, 8);  cout << " ____) | |  | | |__| | |    | |    _| |_| |\\  | |__| |";
-    gotoxy(32, 9);  cout << "|_____/|_|  |_|\\____/|_|    |_|   |_____|_| \\_|\\_____|";
-    
-    // Subtitle - MALL SYSTEM (Yellow)
-    setColor(Color::BRIGHT_YELLOW);
-    gotoxy(24, 11); cout << "  __  __          _      _        _______     _______ _______ ______ __  __ ";
-    gotoxy(24, 12); cout << " |  \\/  |   /\\   | |    | |      / ____\\ \\   / / ____|__   __|  ____|  \\/  |";
-    gotoxy(24, 13); cout << " | \\  / |  /  \\  | |    | |     | (___  \\ \\_/ / (___    | |  | |__  | \\  / |";
-    gotoxy(24, 14); cout << " | |\\/| | / /\\ \\ | |    | |      \\___ \\  \\   / \\___ \\   | |  |  __| | |\\/| |";
-    gotoxy(24, 15); cout << " | |  | |/ ____ \\| |____| |____  ____) |  | |  ____) |  | |  | |____| |  | |";
-    gotoxy(24, 16); cout << " |_|  |_/_/    \\_\\______|______||_____/   |_| |_____/   |_|  |______|_|  |_|";
-    
-    // Simple divider line
-    setColor(Color::BRIGHT_CYAN);
+
+    // Main title - SHOPPING (gradient effect)
+    Color mainColors[6] = {Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW,
+                            Color::BRIGHT_MAGENTA, Color::BRIGHT_BLUE, Color::BRIGHT_RED};
+    string titleLines[6] = {
+        "  _____ _    _  ____  _____  _____ _____ _   _  _____ ",
+        " / ____| |  | |/ __ \\|  __ \\|  __ \\_   _| \\ | |/ ____|",
+        "| (___ | |__| | |  | | |__) | |__) || | |  \\| | |  __ ",
+        " \\___ \\|  __  | |  | |  ___/|  ___/ | | | . ` | | |_ |",
+        " ____) | |  | | |__| | |    | |    _| |_| |\\  | |__| |",
+        "|_____/|_|  |_|\\____/|_|    |_|   |_____|_| \\_|\\_____|"
+    };
+    for(int i = 0; i < 6; i++) {
+        setColor(mainColors[i]);
+        gotoxy(32, 4 + i);
+        cout << titleLines[i];
+    }
+
+    // Subtitle - MALL SYSTEM (rotating colors)
+    Color subColors[6] = {Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN, Color::BRIGHT_CYAN,
+                           Color::BRIGHT_MAGENTA, Color::BRIGHT_RED, Color::BRIGHT_BLUE};
+    string subLines[6] = {
+        "  __  __          _      _        _______     _______ _______ ______ __  __ ",
+        " |  \\/  |   /\\   | |    | |      / ____\\ \\   / / ____|__   __|  ____|  \\/  |",
+        " | \\  / |  /  \\  | |    | |     | (___  \\ \\_/ / (___    | |  | |__  | \\  / |",
+        " | |\\/| | / /\\ \\ | |    | |      \\___ \\  \\   / \\___ \\   | |  |  __| | |\\/| |",
+        " | |  | |/ ____ \\| |____| |____  ____) |  | |  ____) |  | |  | |____| |  | |",
+        " |_|  |_/_/    \\_\\______|______||_____/   |_| |_____/   |_|  |______|_|  |_|"
+    };
+    for(int i = 0; i < 6; i++) {
+        setColor(subColors[i]);
+        gotoxy(24, 11 + i);
+        cout << subLines[i];
+    }
+
+    // Divider line (rainbow effect)
+    Color dividerColors[9] = {Color::BRIGHT_RED, Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN, 
+                               Color::BRIGHT_CYAN, Color::BRIGHT_BLUE, Color::BRIGHT_MAGENTA,
+                               Color::BRIGHT_RED, Color::BRIGHT_YELLOW, Color::BRIGHT_GREEN};
     gotoxy(20, 18);
-    for(int i = 0; i < 90; i++) cout << "=";
-    
+    for(int i = 0; i < 90; i++) {
+        setColor(dividerColors[i % 9]);
+        cout << "=";
+    }
+
     // Project tagline
     setColor(Color::BRIGHT_GREEN);
     gotoxy(30, 20); cout << "DATA STRUCTURES & ALGORITHMS PROJECT 2025";
-    
+
     // Box top
     setColor(Color::BRIGHT_CYAN);
     gotoxy(20, 22);
     cout << "+";
     for(int i = 0; i < 88; i++) cout << "-";
     cout << "+";
-    
+
     // Description
     setColor(Color::BRIGHT_WHITE);
     gotoxy(35, 24); cout << "Advanced Shopping Mall Management System";
-    
+
     // Features
     setColor(Color::BRIGHT_YELLOW);
     gotoxy(26, 26); cout << "Features: Linked Lists | Queues | Stacks | Trees | Graphs";
-    
+
     // Algorithms
     setColor(Color::BRIGHT_GREEN);
     gotoxy(29, 27); cout << "Algorithms: KMP Search | Merge Sort | Heap Sort";
-    
+
     // Box bottom
     setColor(Color::BRIGHT_CYAN);
     gotoxy(20, 29);
     cout << "+";
     for(int i = 0; i < 88; i++) cout << "-";
     cout << "+";
-    
-    // Loading text
+
+    // Loading text & dots
     setColor(Color::BRIGHT_CYAN);
     gotoxy(47, 31); cout << "Loading, please wait";
-    
-    // Loading dots
-    setColor(Color::BRIGHT_YELLOW);
+    setColor(Color::BRIGHT_MAGENTA);
     for (int i = 0; i < 3; i++) {
         Sleep(400);
         cout << " .";
     }
-    
+
     Sleep(2000);
 }
+
+
 /* ---------- Credits ---------- */
 void showCredits() {
     drawHeader("DEVELOPMENT TEAM");
@@ -171,8 +192,7 @@ void CashierMode() {
         gotoxy(50, 16); cout << "4. Sales Analytics";
         setColor(Color::BRIGHT_CYAN);
         gotoxy(50, 17); cout << "5. Peak Hour Analysis";
-        setColor(Color::BRIGHT_YELLOW);
-        gotoxy(50, 18); cout << "6. Search Customer";
+       
         
         setColor(Color::BRIGHT_RED);
         gotoxy(50, 21); cout << "0. Back to Main Menu";
@@ -234,7 +254,6 @@ void CashierMode() {
         }
         else if (choice=='4') showSalesAnalytics();
         else if (choice=='5') showPeakHourAnalysis();
-        else if (choice=='6') searchCustomerInQueue();
         else if (choice=='0') { return; }
         else if (choice==27) exitConfirmation();
     }
@@ -598,6 +617,7 @@ int main() {
     loadUsersFromFile();
     loadProductFromFile();
     loadCustomerFromFile();
+    loadWishlistFromFile();          // ADD THIS
 
     printTitle();
     

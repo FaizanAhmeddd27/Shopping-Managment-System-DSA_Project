@@ -404,8 +404,38 @@ void filterByPriceRange() {
 /* ---------- NEW: WISHLIST (Set/HashSet DSA) ---------- */
 set<int> wishlist;
 
+
+
+// Save wishlist to file
+void saveWishlistToFile() {
+    ofstream f("wishlist.txt");
+    for (int id : wishlist) {
+        f << id << "\n";
+    }
+    f.close();
+}
+
+// Load wishlist from file
+void loadWishlistFromFile() {
+    wishlist.clear();
+    ifstream f("wishlist.txt");
+    if (!f.is_open()) return;
+    
+    string line;
+    while (getline(f, line)) {
+        if (!line.empty()) {
+            try {
+                int id = stoi(line);
+                wishlist.insert(id);
+            } catch(...) {}
+        }
+    }
+    f.close();
+}
+
+
 void addToWishlist() {
-    drawHeader("Add to Wishlist - HashSet Implementation");
+    drawHeader("Add to Wishlist");
     
     if (!head) {
         showErrorToast("No products available", 60, 14);
@@ -415,69 +445,81 @@ void addToWishlist() {
     
     int id;
     setColor(Color::BRIGHT_CYAN);
-    gotoxy(20, 12); cout << "Enter Product ID to add to wishlist: ";
+    gotoxy(20, 12); cout << "Enter Product ID: ";
     setColor(Color::BRIGHT_WHITE);
     cin >> id;
     
     buildProductCache();
     
-    if (productCache.find(id) == productCache.end()) {
-        showErrorToast("Product not found!", 60, 14);
-        gotoxy(30, 23); getch();
-        return;
-    }
-    
-    if (wishlist.find(id) != wishlist.end()) {
-        showInfoToast("Product already in wishlist!", 60, 14);
+    auto it = productCache.find(id);
+    if (it == productCache.end()) {
+        showErrorToast("Product ID not found!", 60, 14);
+    } else if (wishlist.count(id)) {
+        showInfoToast("Already in your wishlist!", 60, 14);
     } else {
         wishlist.insert(id);
+        saveWishlistToFile();                    // THIS SAVES IT!
         showSuccessToast("Added to wishlist!", 60, 14);
     }
     
-    setColor(Color::BRIGHT_WHITE);
     gotoxy(30, 23); getch();
 }
 
 void viewWishlist() {
-    drawHeader("My Wishlist - Set Data Structure");
-    
+    drawHeader("My Wishlist");
+
     if (wishlist.empty()) {
-        showInfoToast("Your wishlist is empty", 60, 14);
-        gotoxy(30, 23); getch();
+        drawAnimatedBox(30, 12, 60, 8, Color::BRIGHT_CYAN);
+        setColor(Color::BRIGHT_YELLOW);
+        gotoxy(48, 15); cout << "Your wishlist is empty";
+        gotoxy(45, 17); cout << "Start adding products!";
+        setColor(Color::BRIGHT_WHITE);
+        gotoxy(40, 22); getch();
         return;
     }
-    
+
     buildProductCache();
-    
-    drawAnimatedBox(10, 11, 80, 10 + wishlist.size(), Color::BRIGHT_MAGENTA);
-    
-    gotoxy(12, 13);
+
+    int count = 0;
+    for (int id : wishlist) if (productCache.count(id)) count++;
+
+    drawAnimatedBox(10, 9, 90, 8 + count + 2, Color::BRIGHT_MAGENTA);
+
+    gotoxy(35, 11);
     setColor(Color::BRIGHT_YELLOW);
-    cout << left << setw(12) << "ID" << setw(35) << "Product" << setw(12) << "Price";
-    
-    gotoxy(12, 14);
+    cout << "YOUR WISHLIST (" << count << " items)";
+
+    gotoxy(12, 13);
     setColor(Color::BRIGHT_CYAN);
-    cout << string(65, '=');
-    
-    int y = 15;
-    Color colors[] = {Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW, Color::BRIGHT_MAGENTA};
-    int idx = 0;
-    
+    cout << left << setw(8)  << "No"
+         << setw(35) << "Product Name"
+         << setw(15) << "Price"
+         << setw(15) << "Status";
+
+    gotoxy(12, 14); setColor(Color::BRIGHT_WHITE);
+    cout << string(85, char(196));
+
+    int y = 15, idx = 1;
+    Color colors[] = {Color::BRIGHT_CYAN, Color::BRIGHT_GREEN, Color::BRIGHT_YELLOW};
+
     for (int id : wishlist) {
-        if (productCache.find(id) != productCache.end()) {
+        if (productCache.count(id)) {
             Product* p = productCache[id];
-            setColor(colors[idx % 4]);
+            setColor(colors[(idx-1) % 3]);
             gotoxy(12, y++);
-            cout << left << setw(12) << p->proId 
-                 << setw(35) << p->proName 
-                 << setw(12) << p->proPrice;
-            idx++;
-            Sleep(80);
+            cout << left << setw(8)  << idx++
+                 << setw(35) << p->proName
+                 << setw(15) << p->proPrice << " Rs";
+
+            setColor(p->proNum > 0 ? Color::BRIGHT_GREEN : Color::BRIGHT_RED);
+            cout << (p->proNum > 0 ? "In Stock" : "Out of Stock");
+            Sleep(50);
         }
     }
-    
+
     setColor(Color::BRIGHT_WHITE);
-    gotoxy(30, y + 2); getch();
+    gotoxy(35, y + 2); cout << "Press any key to go back...";
+    getch();
 }
 
 /* ---------- NEW: PRODUCT RECOMMENDATIONS (Graph-based) ---------- */
